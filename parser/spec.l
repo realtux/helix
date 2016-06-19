@@ -7,8 +7,6 @@ int line_num = 1;
 
 %%
 \n        ++line_num;
-[ \t\n]+  ; // do nothing
-\/\/.+    ; // comment
 "out"     return OUT;
 "="       return EQUALS;
 "=="      return COMPAREAPPROX;
