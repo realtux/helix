@@ -1,21 +1,10 @@
 CXX = gcc
 CC = $(CXX)
+CFLAGS=-std=c99 -Wall -Wextra -Wundef -Wfloat-equal -Wpointer-arith -Wcast-align -Wstrict-prototypes -Wno-missing-field-initializers -Warray-bounds -pedantic -fstrict-aliasing
 
-blang: clean flex bison
-	cc \
-        -o blang \
-		build/spec.l.c \
-		build/spec.y.c
-
-flex: bison
-	flex \
-        -o build/spec.l.c \
-        parser/spec.l
-
-bison:
-	bison \
-        -o build/spec.y.c \
-        -d parser/spec.y
+blang: clean
+	cc -o blang src/blang.c src/lexer.c $(CFLAGS)
+	@echo "end compilation--------->"
 
 clean:
 	rm -f blang
