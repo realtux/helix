@@ -1,5 +1,5 @@
 # blang 0.0.1-alpha
-blang is a fun and mostly useless toy language written in c. blang is based on an earlier project of mine called [axis](https://github.com/ebrian/axis) which was written in node. it was too slow and wouldn't scale.
+blang is a fun and mostly useless toy language written in c. blang is based on an earlier project of mine called [axis](https://github.com/ebrian/axis) which was written in node. it was too slow and wouldn't scale. blang should run on any *mostly* posix compliant operating systems, preferably linux.
 
 ##### what does blang look like?
 ```go
