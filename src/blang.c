@@ -1,17 +1,41 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
+#include "blang.h"
 #include "core.h"
 #include "lexer.h"
 
-int line_number = 1;
-int chr = 0;
+#include "std/error.h"
 
 char *source;
 
+int line = 1;
+int chr = 0;
+
+int stack_size = 0;
+stack_frame *stack;
+
+int env_debug = false;
+
 int main(int argc, char **argv) {
+    // setup env
+    const char *env_debug_value = getenv("DEBUG");
+
+    // timing
+    clock_t begin;
+    clock_t end;
+    if (env_debug) {
+        begin = clock();
+    }
+
+    if (env_debug_value != NULL && strcmp(getenv("DEBUG"), "1") == 0) {
+        env_debug = true;
+    }
+
     if (argc < 2) {
-        AXIS_GENERAL("No input file found");
+        BLANG_GENERAL("No input file found");
         return EXIT_FAILURE;
     }
 
@@ -19,7 +43,7 @@ int main(int argc, char **argv) {
     FILE *file = fopen(argv[1], "r");
 
     if (file == NULL) {
-        AXIS_GENERAL("Couldn't open input file for reading");
+        BLANG_GENERAL("Couldn't open input file for reading");
         return EXIT_FAILURE;
     }
 
@@ -34,7 +58,7 @@ int main(int argc, char **argv) {
     source = malloc(file_size + 1);
 
     if (source == NULL) {
-        AXIS_CORE("Allocation failed for source file");
+        BLANG_CORE("Allocation failed for source file");
         return EXIT_FAILURE;
     }
 
@@ -44,12 +68,20 @@ int main(int argc, char **argv) {
 
     lex();
 
-    // execution details
-    printf("\n----\n");
-    printf("Read %d lines", line_number);
-
     // clean up
+    stack_destroy();
     free(source);
+
+    // final debugging output, if any
+    if (env_debug) {
+        end = clock();
+
+        // execution details
+        printf("\n---->\n");
+        printf("Lines Read: %d\n", line);
+        printf("Execution Time: %0.4fs\n", (double) (end - begin) / CLOCKS_PER_SEC);
+        printf("---->\n");
+    }
 
     // always
     printf("\n");

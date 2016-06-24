@@ -1,3 +1,6 @@
+// output
 out 'hello';
 out 'hello something1234';
+
+// output addition
 out 2 + 3;
