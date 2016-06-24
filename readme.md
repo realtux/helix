@@ -24,8 +24,14 @@ if name == 'blang' {
 ##### installation
 ```
 # you know the drill
+git clone https://github.com/ebrian/blang
+cd blang
 make
-make install
+sudo make install
+```
+
+##### usage
+```
 blang your_file.bl
 ```
 
