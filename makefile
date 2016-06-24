@@ -9,6 +9,9 @@ blang: clean
 	cc -o blang $(SRC) $(STDSRC) $(INCLUDES) $(CFLAGS)
 	@echo "end compilation--------->"
 
+install:
+	sudo cp blang /usr/local/bin
+
 clean:
 	rm -f blang
 	rm -f build/*
