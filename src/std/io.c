@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#include "lexer.h"
+#include "core.h"
 
-void out(void) {
-	printf("out");
+void out(blang_var *string) {
+	printf("%s", string->d.var_string);
 }

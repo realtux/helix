@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "core.h"
 
@@ -24,4 +25,6 @@ void stack_trace(void) {
 	} else {
 		printf("  -> main:%d\n", line);
 	}
+
+	exit(EXIT_FAILURE);
 }

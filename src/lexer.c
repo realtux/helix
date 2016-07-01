@@ -1,8 +1,11 @@
-#include <regex.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "core.h"
+#include "std/constructs.h"
+#include "std/error.h"
+#include "tpv/slre.h"
 
 extern int line;
 extern int chr;
@@ -71,6 +74,9 @@ void eat_braced_block(void) {
 }
 
 void lex(void) {
+	struct slre_cap cap[1];
+	char *keyword;
+
 	infinite {
 		// eat space
 		if (source[chr] == ' ') {
@@ -86,6 +92,28 @@ void lex(void) {
 		// eat newlines
 		if (source[chr] == '\n') {
 			++line;
+			goto next;
+		}
+
+		// end braced block
+		if (source[chr] == '}') {
+			return;
+		}
+
+		// reserved keywords
+		int match = slre_match(re_keywords, source + chr, 32, cap, 1, 0);
+
+		if (match >= 0) {
+			// hold the next keyword
+			keyword = malloc(sizeof(char) * (cap->len + 1));
+
+			// copy it in
+			strncpy(keyword, cap->ptr, cap->len);
+			keyword[cap->len] = '\0';
+
+			handle_construct(keyword);
+
+			free(keyword);
 			goto next;
 		}
 

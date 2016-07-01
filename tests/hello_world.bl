@@ -1,6 +1,10 @@
 // output
-out 'hello';
-out 'hello something1234';
+out 'hello\n';
+out 'hello something1234\nmore shit\and more\newline is cool\'asd\n\n\n';
+
+out 'test cat:\n';
+
+out 'brian' . 'kevin' . 'nate';
 
 // output addition
 out 2 + 3;
