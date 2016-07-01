@@ -72,6 +72,8 @@ blang_var *evaluate_expression(void) {
 	// concatenation?
 	if (source[chr] == '.') {
 		++chr;
+
+		// get whatever comes next
 		blang_var *concatenated = evaluate_expression();
 
 		// combine strings
@@ -79,6 +81,9 @@ blang_var *evaluate_expression(void) {
 		EXPAND_STRING_BY(variable->d.var_string, char, length);
 
 		strcat(variable->d.var_string, concatenated->d.var_string);
+
+		// discard the concatenated stuff
+		free_blang_var(concatenated);
 	}
 
 	// newline means missing semi colon

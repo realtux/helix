@@ -57,4 +57,6 @@ typedef struct {
 void stack_push(stack_frame);
 void stack_destroy(void);
 
+void free_blang_var(blang_var*);
+
 #endif
