@@ -17,9 +17,9 @@ void stack_destroy(void) {
 	free(stack);
 }
 
-void free_blang_var(blang_var *var) {
-	if (var->type == BLANG_VAR_STRING) {
-		free(var->d.var_string);
+void free_blang_val(blang_val *var) {
+	if (var->type == BLANG_VAL_STRING) {
+		free(var->d.val_string);
 	}
 
 	free(var);

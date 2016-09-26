@@ -22,21 +22,21 @@
 
 const char *re_keywords;
 
-#define BLANG_VAR_INT 1
-#define BLANG_VAR_FLOAT 2
-#define BLANG_VAR_STRING 3
-#define BLANG_VAR_BOOL 4
+#define BLANG_VAL_INT 1
+#define BLANG_VAL_FLOAT 2
+#define BLANG_VAL_STRING 3
+#define BLANG_VAL_BOOL 4
 
 typedef struct {
     int type;
     union {
-        int var_int;
-        double var_float;
-        char *var_string;
-        int var_bool;
+        int val_int;
+        double val_float;
+        char *val_string;
+        int val_bool;
         void *something;
     } d;
-} blang_var;
+} blang_val;
 
 typedef struct {
     char *name;
@@ -57,6 +57,6 @@ typedef struct {
 void stack_push(stack_frame);
 void stack_destroy(void);
 
-void free_blang_var(blang_var*);
+void free_blang_val(blang_val*);
 
 #endif

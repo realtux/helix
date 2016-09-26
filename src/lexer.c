@@ -3,8 +3,8 @@
 #include <string.h>
 
 #include "core.h"
-#include "std/constructs.h"
-#include "std/error.h"
+#include "constructs.h"
+#include "error.h"
 #include "tpv/slre.h"
 
 extern int line;
