@@ -5,14 +5,17 @@
 #include "core.h"
 #include "error.h"
 #include "lexer.h"
-#include "std/constructs.h"
-#include "std/io.h"
+#include "constructs.h"
 #include "tpv/slre.h"
 
 extern int line;
 extern int chr;
 
 extern char *source;
+
+void out(blang_val *string) {
+	printf("%s", string->d.val_string);
+}
 
 void handle_construct(const char *construct) {
 	if (strcmp(construct, "out") == 0) {
@@ -26,9 +29,9 @@ blang_val *evaluate_expression(void) {
 	struct slre_cap cap[1];
 
 	blang_val *value = malloc(sizeof(blang_val));
-	value->type = BLANG_VAR_STRING;
-	value->d.val_string = malloc(sizeof(char) * 1);
-	value->d.val_string[0] = '\0';
+	variable->type = BLANG_VAL_STRING;
+	variable->d.val_string = malloc(sizeof(char) * 1);
+	variable->d.val_string[0] = '\0';
 
 	// space
 	if (source[chr] == ' ') {
@@ -56,7 +59,6 @@ blang_val *evaluate_expression(void) {
 				// peek forward
 				if (source[chr + 1] == 'n') {
 					EXPAND_STRING_BY(value->d.val_string, char, 1);
-
 					strcat(value->d.val_string, "\n");
 					++chr;
 					++chr;
@@ -84,6 +86,7 @@ blang_val *evaluate_expression(void) {
 			match = slre_match("[^1-9]", source + chr, 32, cap, 1, 0);
 
 			if (match >= 0) break;
+
 			++chr;
 		}
 	}
@@ -115,6 +118,7 @@ blang_val *evaluate_expression(void) {
 
 		// combine strings
 		size_t length = strlen(concatenated->d.val_string);
+
 		EXPAND_STRING_BY(value->d.val_string, char, length);
 
 		strcat(value->d.val_string, concatenated->d.val_string);

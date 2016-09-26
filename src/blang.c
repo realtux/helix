@@ -7,7 +7,7 @@
 #include "core.h"
 #include "lexer.h"
 
-#include "std/error.h"
+#include "error.h"
 
 char *source;
 

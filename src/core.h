@@ -25,10 +25,10 @@ const char *re_integers;
 const char *re_functions;
 const char *re_methods;
 
-#define BLANG_VAR_INT 1
-#define BLANG_VAR_FLOAT 2
-#define BLANG_VAR_STRING 3
-#define BLANG_VAR_BOOL 4
+#define BLANG_VAL_INT 1
+#define BLANG_VAL_FLOAT 2
+#define BLANG_VAL_STRING 3
+#define BLANG_VAL_BOOL 4
 
 typedef struct {
     int type;

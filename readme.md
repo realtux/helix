@@ -1,7 +1,7 @@
-# blang 0.0.1-alpha
-blang is a fun and mostly useless toy language written in c. blang is based on an earlier project of mine called [axis](https://github.com/ebrian/axis) which was written in node. it was too slow and wouldn't scale. blang should run on any *mostly* posix compliant operating systems, preferably linux.
+# helix 0.0.1-alpha
+helix is a fun and mostly useless toy language written in c. helix is based on an earlier project of mine called [axis](https://github.com/ebrian/axis) which was written in node.
 
-##### what does blang look like?
+##### what does helix look like?
 ```go
 // new function
 fn say_hello(msg) {
@@ -24,15 +24,15 @@ if name == 'blang' {
 ##### installation
 ```
 # you know the drill
-git clone https://github.com/ebrian/blang
-cd blang
+git clone https://github.com/ebrian/helix
+cd helix
 make
 sudo make install
 ```
 
 ##### usage
 ```
-blang your_file.bl
+helix your_file.hl
 ```
 
 ## change log
