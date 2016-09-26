@@ -45,7 +45,7 @@ void eat_braced_block(void) {
 	infinite {
 		// fail on endline
 		if (source[chr] == '\0') {
-			BLANG_PARSE("Unclosed brace block");
+			HELIX_PARSE("Unclosed brace block");
 		}
 
 		if (source[chr] == '\n') {

@@ -1,1 +1,3 @@
+out 'calling method: method_call\n';
+
 method_call();

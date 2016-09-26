@@ -17,8 +17,8 @@ void stack_destroy(void) {
 	free(stack);
 }
 
-void free_blang_val(blang_val *val) {
-	if (val->type == BLANG_VAR_STRING) {
+void free_helix_val(helix_val *val) {
+	if (val->type == HELIX_VAL_STRING) {
 		free(val->d.val_string);
 	}
 

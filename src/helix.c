@@ -3,7 +3,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "blang.h"
+#include "helix.h"
 #include "core.h"
 #include "lexer.h"
 
@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
     }
 
     if (argc < 2) {
-        BLANG_GENERAL("No input file found");
+        HELIX_GENERAL("No input file found");
         return EXIT_FAILURE;
     }
 
@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
     FILE *file = fopen(argv[1], "r");
 
     if (file == NULL) {
-        BLANG_GENERAL("Couldn't open input file for reading");
+        HELIX_GENERAL("Couldn't open input file for reading");
         return EXIT_FAILURE;
     }
 
@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
     source = malloc(file_size + 1);
 
     if (source == NULL) {
-        BLANG_CORE("Allocation failed for source file");
+        HELIX_CORE("Allocation failed for source file");
         return EXIT_FAILURE;
     }
 

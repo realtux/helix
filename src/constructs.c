@@ -13,7 +13,7 @@ extern int chr;
 
 extern char *source;
 
-void out(blang_val *string) {
+void out(helix_val *string) {
 	printf("%s", string->d.val_string);
 }
 
@@ -24,14 +24,14 @@ void handle_construct(const char *construct) {
 	}
 }
 
-blang_val *evaluate_expression(void) {
+helix_val *evaluate_expression(void) {
 	int match;
 	struct slre_cap cap[1];
 
-	blang_val *value = malloc(sizeof(blang_val));
-	variable->type = BLANG_VAL_STRING;
-	variable->d.val_string = malloc(sizeof(char) * 1);
-	variable->d.val_string[0] = '\0';
+	helix_val *value = malloc(sizeof(helix_val));
+	value->type = HELIX_VAL_STRING;
+	value->d.val_string = malloc(sizeof(char) * 1);
+	value->d.val_string[0] = '\0';
 
 	// space
 	if (source[chr] == ' ') {
@@ -45,7 +45,7 @@ blang_val *evaluate_expression(void) {
 		infinite {
 			// fail on newline
 			if (source[chr] == '\n' || source[chr] == '\0') {
-				BLANG_PARSE("Unterminated string");
+				HELIX_PARSE("Unterminated string");
 			}
 
 			// end string, accounting for escape
@@ -80,7 +80,7 @@ blang_val *evaluate_expression(void) {
 		infinite {
 			// fail on newline
 			if (source[chr] == '\n' || source[chr] == '\0') {
-				BLANG_PARSE("Unterminated expression");
+				HELIX_PARSE("Unterminated expression");
 			}
 
 			match = slre_match("[^1-9]", source + chr, 32, cap, 1, 0);
@@ -114,7 +114,7 @@ blang_val *evaluate_expression(void) {
 		++chr;
 
 		// get whatever comes next
-		blang_val *concatenated = evaluate_expression();
+		helix_val *concatenated = evaluate_expression();
 
 		// combine strings
 		size_t length = strlen(concatenated->d.val_string);
@@ -124,12 +124,12 @@ blang_val *evaluate_expression(void) {
 		strcat(value->d.val_string, concatenated->d.val_string);
 
 		// discard the concatenated stuff
-		free_blang_val(concatenated);
+		free_helix_val(concatenated);
 	}
 
 	// newline means missing semi colon
 	if (source[chr] == '\n' || source[chr] == '\0') {
-		BLANG_PARSE("Unterminated expression");
+		HELIX_PARSE("Unterminated expression");
 	}
 
 	return value;

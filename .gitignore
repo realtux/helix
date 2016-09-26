@@ -1,1 +1,4 @@
 helix
+build/*.o
+build/objs/*.o
+build/objs/tpv/*.o

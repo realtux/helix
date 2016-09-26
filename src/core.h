@@ -1,18 +1,18 @@
 #ifndef CORE_H
 #define CORE_H
 
-#define BLANG_GENERAL(msg) printf("Blang General: %s\n", msg);
-#define BLANG_CORE(msg) \
-    printf("Blang Core: %s at line %d\n", msg, line); \
+#define HELIX_GENERAL(msg) printf("HELIX General: %s\n", msg);
+#define HELIX_CORE(msg) \
+    printf("Helix Core: %s at line %d\n", msg, line); \
     stack_trace();
-#define BLANG_FATAL(msg) \
-    printf("Blang Fatal: %s at line %d\n", msg, line); \
+#define HELIX_FATAL(msg) \
+    printf("Helix Fatal: %s at line %d\n", msg, line); \
     stack_trace();
-#define BLANG_PARSE(msg) \
-    printf("Blang Parse: %s at line %d\n", msg, line); \
+#define HELIX_PARSE(msg) \
+    printf("Helix Parse: %s at line %d\n", msg, line); \
     stack_trace();
-#define BLANG_WARNING(msg) \
-    printf("Blang Warning: %s at line %d\n", msg, line); \
+#define HELIX_WARNING(msg) \
+    printf("Helix Warning: %s at line %d\n", msg, line); \
     stack_trace();
 
 #define true 1
@@ -25,10 +25,10 @@ const char *re_integers;
 const char *re_functions;
 const char *re_methods;
 
-#define BLANG_VAL_INT 1
-#define BLANG_VAL_FLOAT 2
-#define BLANG_VAL_STRING 3
-#define BLANG_VAL_BOOL 4
+#define HELIX_VAL_INT 1
+#define HELIX_VAL_FLOAT 2
+#define HELIX_VAL_STRING 3
+#define HELIX_VAL_BOOL 4
 
 typedef struct {
     int type;
@@ -39,7 +39,7 @@ typedef struct {
         int val_bool;
         void *something;
     } d;
-} blang_val;
+} helix_val;
 
 typedef struct {
     char *name;
@@ -60,6 +60,6 @@ typedef struct {
 void stack_push(stack_frame);
 void stack_destroy(void);
 
-void free_blang_val(blang_val*);
+void free_helix_val(helix_val*);
 
 #endif
