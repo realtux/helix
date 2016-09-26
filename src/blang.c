@@ -25,6 +25,9 @@ int main(int argc, char **argv) {
 
     // load up header declarations
     re_keywords = "^(out)";
+    re_integers = "[0-9]+";
+    re_functions = "^[a-zA-Z_0-9]+\\s*?\\(";
+    re_methods = "^[a-zA-Z_0-9]+:[a-zA-Z_0-9]+\\s*?\\(";
 
     // timing
     clock_t begin;

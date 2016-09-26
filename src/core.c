@@ -17,10 +17,10 @@ void stack_destroy(void) {
 	free(stack);
 }
 
-void free_blang_var(blang_var *var) {
-	if (var->type == BLANG_VAR_STRING) {
-		free(var->d.var_string);
+void free_blang_val(blang_val *val) {
+	if (val->type == BLANG_VAR_STRING) {
+		free(val->d.val_string);
 	}
 
-	free(var);
+	free(val);
 }

@@ -21,6 +21,9 @@
 #define infinite for(;;)
 
 const char *re_keywords;
+const char *re_integers;
+const char *re_functions;
+const char *re_methods;
 
 #define BLANG_VAR_INT 1
 #define BLANG_VAR_FLOAT 2
@@ -30,13 +33,13 @@ const char *re_keywords;
 typedef struct {
     int type;
     union {
-        int var_int;
-        double var_float;
-        char *var_string;
-        int var_bool;
+        int val_int;
+        double val_float;
+        char *val_string;
+        int val_bool;
         void *something;
     } d;
-} blang_var;
+} blang_val;
 
 typedef struct {
     char *name;
@@ -57,6 +60,6 @@ typedef struct {
 void stack_push(stack_frame);
 void stack_destroy(void);
 
-void free_blang_var(blang_var*);
+void free_blang_val(blang_val*);
 
 #endif

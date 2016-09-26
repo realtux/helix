@@ -10,6 +10,7 @@ TPVSRC=src/tpv/slre.c
 blang: clean
 	cc -o blang $(SRC) $(STDSRC) $(TPVSRC) $(INCLUDES) $(CFLAGS) $(LINKS)
 	@echo "end compilation--------->"
+	@echo "begin execution--------->"
 
 install:
 	sudo cp blang /usr/local/bin

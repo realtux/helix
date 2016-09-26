@@ -7,6 +7,7 @@
 #include "lexer.h"
 #include "std/constructs.h"
 #include "std/io.h"
+#include "tpv/slre.h"
 
 extern int line;
 extern int chr;
@@ -20,18 +21,21 @@ void handle_construct(const char *construct) {
 	}
 }
 
-blang_var *evaluate_expression(void) {
-	blang_var *variable = malloc(sizeof(blang_var));
-	variable->type = BLANG_VAR_STRING;
-	variable->d.var_string = malloc(sizeof(char) * 1);
-	variable->d.var_string[0] = '\0';
+blang_val *evaluate_expression(void) {
+	int match;
+	struct slre_cap cap[1];
+
+	blang_val *value = malloc(sizeof(blang_val));
+	value->type = BLANG_VAR_STRING;
+	value->d.val_string = malloc(sizeof(char) * 1);
+	value->d.val_string[0] = '\0';
 
 	// space
 	if (source[chr] == ' ') {
 		eat_space();
 	}
 
-	// string
+	// handle string
 	if (source[chr] == '\'') {
 		++chr;
 
@@ -51,20 +55,53 @@ blang_var *evaluate_expression(void) {
 			if (source[chr] == '\\') {
 				// peek forward
 				if (source[chr + 1] == 'n') {
-					EXPAND_STRING_BY(variable->d.var_string, char, 1);
+					EXPAND_STRING_BY(value->d.val_string, char, 1);
 
-					strcat(variable->d.var_string, "\n");
+					strcat(value->d.val_string, "\n");
 					++chr;
 					++chr;
 					continue;
 				}
 			}
 
-			EXPAND_STRING_BY(variable->d.var_string, char, 1);
+			EXPAND_STRING_BY(value->d.val_string, char, 1);
 
-			strncat(variable->d.var_string, source + chr, 1);
+			strncat(value->d.val_string, source + chr, 1);
 			++chr;
 		}
+	}
+
+	// handle integer
+	match = slre_match(re_integers, source + chr, 32, cap, 1, 0);
+
+	if (match >= 0) {
+		infinite {
+			// fail on newline
+			if (source[chr] == '\n' || source[chr] == '\0') {
+				BLANG_PARSE("Unterminated expression");
+			}
+
+			match = slre_match("[^1-9]", source + chr, 32, cap, 1, 0);
+
+			if (match >= 0) break;
+			++chr;
+		}
+	}
+
+	// method call
+	match = slre_match(re_functions, source + chr, 32, cap, 1, 0);
+
+	if (match >= 0) {
+		// get the function name
+		char *function_name = malloc(sizeof(char) * (cap->len + 1));
+
+		// copy it in
+		strncpy(function_name, cap->ptr, cap->len);
+		function_name[cap->len] = '\0';
+
+		printf("%s", function_name);
+
+		free(function_name);
 	}
 
 	eat_space();
@@ -74,16 +111,16 @@ blang_var *evaluate_expression(void) {
 		++chr;
 
 		// get whatever comes next
-		blang_var *concatenated = evaluate_expression();
+		blang_val *concatenated = evaluate_expression();
 
 		// combine strings
-		size_t length = strlen(concatenated->d.var_string);
-		EXPAND_STRING_BY(variable->d.var_string, char, length);
+		size_t length = strlen(concatenated->d.val_string);
+		EXPAND_STRING_BY(value->d.val_string, char, length);
 
-		strcat(variable->d.var_string, concatenated->d.var_string);
+		strcat(value->d.val_string, concatenated->d.val_string);
 
 		// discard the concatenated stuff
-		free_blang_var(concatenated);
+		free_blang_val(concatenated);
 	}
 
 	// newline means missing semi colon
@@ -91,5 +128,5 @@ blang_var *evaluate_expression(void) {
 		BLANG_PARSE("Unterminated expression");
 	}
 
-	return variable;
+	return value;
 }

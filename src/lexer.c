@@ -74,6 +74,7 @@ void eat_braced_block(void) {
 }
 
 void lex(void) {
+	int match;
 	struct slre_cap cap[1];
 	char *keyword;
 
@@ -101,7 +102,7 @@ void lex(void) {
 		}
 
 		// reserved keywords
-		int match = slre_match(re_keywords, source + chr, 32, cap, 1, 0);
+		match = slre_match(re_keywords, source + chr, 32, cap, 1, 0);
 
 		if (match >= 0) {
 			// hold the next keyword
@@ -116,6 +117,16 @@ void lex(void) {
 			free(keyword);
 			goto next;
 		}
+
+		// function call
+		match = slre_match(re_functions, source + chr, 32, cap, 1, 0);
+
+		if (match >= 0) evaluate_expression();
+
+		// method call
+		match = slre_match(re_methods, source + chr, 32, cap, 1, 0);
+
+		if (match >= 0) evaluate_expression();
 
 		// eat comments
 		if (source[chr] == '/' && source[chr + 1] == '/') {
