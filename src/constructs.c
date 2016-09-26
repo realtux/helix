@@ -3,9 +3,10 @@
 #include <string.h>
 
 #include "core.h"
+#include "constructs.h"
 #include "error.h"
 #include "lexer.h"
-#include "constructs.h"
+#include "std.h"
 #include "tpv/slre.h"
 
 extern int line;
@@ -91,20 +92,20 @@ helix_val *evaluate_expression(void) {
 		}
 	}
 
-	// method call
-	match = slre_match(re_functions, source + chr, 32, cap, 1, 0);
+	// std call
+	match = slre_match(re_std, source + chr, 32, cap, 1, 0);
 
 	if (match >= 0) {
-		// get the function name
-		char *function_name = malloc(sizeof(char) * (cap->len + 1));
+		// get the std name
+		char *std = malloc(sizeof(char) * (cap->len + 1));
 
 		// copy it in
-		strncpy(function_name, cap->ptr, cap->len);
-		function_name[cap->len] = '\0';
+		strncpy(std, cap->ptr, cap->len);
+		std[cap->len] = '\0';
 
-		printf("%s", function_name);
+		handle_std(std);
 
-		free(function_name);
+		free(std);
 	}
 
 	eat_space();

@@ -1,3 +1,7 @@
-out 'calling method: method_call\n';
+out 'hello\n';
 
-method_call();
+
+output::print('i win\n');
+output::print('and again\n');
+output::print_rev('brian');
+output::print('after');

@@ -76,7 +76,6 @@ void eat_braced_block(void) {
 void lex(void) {
 	int match;
 	struct slre_cap cap[1];
-	char *keyword;
 
 	infinite {
 		// eat space
@@ -106,7 +105,7 @@ void lex(void) {
 
 		if (match >= 0) {
 			// hold the next keyword
-			keyword = malloc(sizeof(char) * (cap->len + 1));
+			char *keyword = malloc(sizeof(char) * (cap->len + 1));
 
 			// copy it in
 			strncpy(keyword, cap->ptr, cap->len);
@@ -118,13 +117,8 @@ void lex(void) {
 			goto next;
 		}
 
-		// function call
-		match = slre_match(re_functions, source + chr, 32, cap, 1, 0);
-
-		if (match >= 0) evaluate_expression();
-
-		// method call
-		match = slre_match(re_methods, source + chr, 32, cap, 1, 0);
+		// std call
+		match = slre_match(re_std, source + chr, 32, cap, 1, 0);
 
 		if (match >= 0) evaluate_expression();
 

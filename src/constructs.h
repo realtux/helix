@@ -1,5 +1,5 @@
-#ifndef STD_CONSTRUCTS_H
-#define STD_CONSTRUCTS_H
+#ifndef CONSTRUCTS_H
+#define CONSTRUCTS_H
 
 void out(helix_val *);
 void handle_construct(const char *);

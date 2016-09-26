@@ -3,22 +3,8 @@ helix is a fun and mostly useless toy language written in c. helix is based on a
 
 ##### what does helix look like?
 ```go
-// new function
-fn say_hello(msg) {
-  if msg { // truthy/falsy conditionals
-    return msg;
-  } else {
-    return 'hello!';
-  }
-}
-
-// set a variable
-var name = 'blang';
-
-// do a conditional
-if name == 'blang' {
-  out say_hello(); // argument optional
-}
+// single comment
+output::print('hello world');
 ```
 
 ##### installation

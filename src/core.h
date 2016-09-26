@@ -22,8 +22,7 @@
 
 const char *re_keywords;
 const char *re_integers;
-const char *re_functions;
-const char *re_methods;
+const char *re_std;
 
 #define HELIX_VAL_INT 1
 #define HELIX_VAL_FLOAT 2

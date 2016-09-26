@@ -24,10 +24,9 @@ int main(int argc, char **argv) {
     const char *env_debug_value = getenv("DEBUG");
 
     // load up header declarations
-    re_keywords = "^(out)";
+    re_keywords = "^(out)\\s";
     re_integers = "[0-9]+";
-    re_functions = "^[a-zA-Z_0-9]+\\s*?\\(";
-    re_methods = "^[a-zA-Z_0-9]+:[a-zA-Z_0-9]+\\s*?\\(";
+    re_std = "^([a-zA-Z_0-9]+::[a-zA-Z_0-9]+)\\s*?\\(";
 
     // timing
     clock_t begin;
