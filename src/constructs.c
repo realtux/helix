@@ -14,14 +14,23 @@ extern int chr;
 
 extern char *source;
 
-void out(helix_val *string) {
+void con_out(helix_val *string) {
 	printf("%s", string->d.val_string);
+}
+
+void con_if(void) {
+
 }
 
 void handle_construct(const char *construct) {
 	if (strcmp(construct, "out") == 0) {
 		chr = chr + 3;
-		out(evaluate_expression());
+		con_out(evaluate_expression());
+	} else if (strcmp(construct, "if") == 0) {
+		chr += 2;
+		con_if();
+	} else {
+		HELIX_FATAL("Unknown keyword");
 	}
 }
 

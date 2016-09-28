@@ -14,7 +14,10 @@ extern int chr;
 extern char *source;
 
 void handle_std(const char *namespace) {
+	// eat up the namespace and method name
 	while (source[chr] != '(') ++chr;
+
+	// and the paren
 	++chr;
 
 	if (strcmp(namespace, "output::print") == 0) {

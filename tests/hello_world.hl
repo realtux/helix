@@ -1,7 +1,15 @@
-out 'hello\n';
+// call method
+output::print('asdf\n');
 
+// concat
+output::print('a' . ' ' . 'b' . ' ' . 'c' . '\n');
 
-output::print('i win\n');
-output::print('and again\n');
-output::print_rev('brian');
-output::print('after');
+// assignment
+var name = 'brian';
+
+// handle if
+if name == 'brian' {
+    output::print('its brian, yes\n');
+} else {
+    output::print('its not brian, no\n');
+}
