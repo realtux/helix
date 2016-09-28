@@ -28,12 +28,23 @@ const char *re_std;
 #define HELIX_VAL_FLOAT 2
 #define HELIX_VAL_STRING 3
 #define HELIX_VAL_BOOL 4
+#define HELIX_VAL_DOUBLE 4
+
+#define TOKEN_OPERATOR_SEQ  1 // ===
+#define TOKEN_OPERATOR_EQ   2 // ==
+#define TOKEN_OPERATOR_NEQ  3 // !=
+#define TOKEN_OPERATOR_SNEQ 4 // !==
+#define TOKEN_OPERATOR_LTE  5 // <=
+#define TOKEN_OPERATOR_GTE  6 // >=
+#define TOKEN_OPERATOR_LT   7 // >=
+#define TOKEN_OPERATOR_GT   8 // >=
 
 typedef struct {
     int type;
     union {
         int val_int;
-        double val_float;
+        double val_double;
+        float val_float;
         char *val_string;
         int val_bool;
         void *something;
@@ -46,7 +57,8 @@ typedef struct {
     int line_pos;
     union {
         int return_int;
-        double return_float;
+        double return_double;
+        float return_float;
         char *return_string;
         int return_bool;
         void *something;
@@ -59,6 +71,8 @@ typedef struct {
 void stack_push(stack_frame);
 void stack_destroy(void);
 
+helix_val *init_helix_val(void);
+char *helix_val_as_string(helix_val*);
 void free_helix_val(helix_val*);
 
 #endif

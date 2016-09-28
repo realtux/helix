@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 #include "core.h"
 
@@ -17,10 +19,37 @@ void stack_destroy(void) {
 	free(stack);
 }
 
-void free_helix_val(helix_val *val) {
+helix_val *init_helix_val(void) {
+	helix_val *val = malloc(sizeof(helix_val));
+	val->d.val_string = malloc(sizeof(char) * 1);
+	val->d.val_string[0] = '\0';
+
+	return val;
+}
+
+char *helix_val_as_string(helix_val *val) {
+	char *final;
+
 	if (val->type == HELIX_VAL_STRING) {
-		free(val->d.val_string);
+		// copy into final
+		final = malloc(sizeof(char) * (strlen(val->d.val_string) + 1));
+		strcpy(final, val->d.val_string);
+		return final;
+	} else if (val->type == HELIX_VAL_INT) {
+		// convert the string from int
+		char tmp[100];
+		sprintf(tmp, "%d", val->d.val_int);
+
+		// copy into final
+		final = malloc(sizeof(char) * (strlen(tmp) + 1));
+		strcpy(final, tmp);
+		return final;
 	}
 
+	return NULL;
+}
+
+void free_helix_val(helix_val *val) {
+	free(val->d.val_string);
 	free(val);
 }

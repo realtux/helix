@@ -14,7 +14,8 @@ extern char *source;
 
 void eat_space(void) {
 	infinite {
-		if (source[chr] == ' ') {
+		if (source[chr] == ' ' ||
+			source[chr] == '\t') {
 			++chr;
 			continue;
 		}
@@ -36,6 +37,8 @@ void eat_comment(void) {
 }
 
 void eat_braced_block(void) {
+	eat_space();
+
 	// push past the true block
 	int nested_curly = 0;
 
@@ -79,9 +82,10 @@ void lex(void) {
 
 	infinite {
 		// eat space
-		if (source[chr] == ' ') {
+		if (source[chr] == ' ' ||
+			source[chr] == '\t') {
 			eat_space();
-			goto next;
+			continue;
 		}
 
 		// eat semi colon

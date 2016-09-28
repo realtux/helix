@@ -14,18 +14,121 @@ extern int chr;
 
 extern char *source;
 
-void con_out(helix_val *string) {
-	printf("%s", string->d.val_string);
+void con_out(void) {
+	helix_val *val = evaluate_expression();
+
+	if (val->type == HELIX_VAL_STRING) {
+		printf("%s", val->d.val_string);
+	} else if (val->type == HELIX_VAL_INT) {
+		printf("%d", val->d.val_int);
+	} else if (val->type == HELIX_VAL_FLOAT) {
+		printf("%f", val->d.val_float);
+	} else if (val->type == HELIX_VAL_BOOL) {
+		printf("%s", val->d.val_bool == 0 ? "false" : "true");
+	}
 }
 
 void con_if(void) {
+	eat_space();
 
+	helix_val *val_lh = evaluate_expression();
+
+	eat_space();
+
+	int operator;
+
+	if (strncmp(source + chr, "===", 3) == 0) {
+		operator = TOKEN_OPERATOR_SEQ;
+		chr += 3;
+	} else if (strncmp(source + chr, "==", 2) == 0) {
+		operator = TOKEN_OPERATOR_EQ;
+		chr += 2;
+	} else if (strncmp(source + chr, "!==", 3) == 0) {
+		operator = TOKEN_OPERATOR_SNEQ;
+		chr += 3;
+	} else if (strncmp(source + chr, "!=", 2) == 0) {
+		operator = TOKEN_OPERATOR_NEQ;
+		chr += 2;
+	} else {
+		HELIX_FATAL("Strange operator found");
+	}
+
+	eat_space();
+
+	helix_val *val_rh = evaluate_expression();
+
+	eat_space();
+
+	if (source[chr] != '{') {
+		HELIX_PARSE("Expected { after conditional");
+	}
+
+	int result;
+
+	char *tmp_lh_str;
+	char *tmp_rh_str;
+
+	if (operator == TOKEN_OPERATOR_SEQ) {
+		if (val_lh->type != val_rh->type) result = 0;
+	} else if (operator == TOKEN_OPERATOR_EQ) {
+		tmp_lh_str = helix_val_as_string(val_lh);
+		tmp_rh_str = helix_val_as_string(val_rh);
+
+		result = strcmp(tmp_lh_str, tmp_rh_str) == 0 ? 1 : 0;
+	} else if (operator == TOKEN_OPERATOR_SNEQ) {
+		if (val_lh->type != val_rh->type) result = 0;
+	} else if (operator == TOKEN_OPERATOR_NEQ) {
+		tmp_lh_str = helix_val_as_string(val_lh);
+		tmp_rh_str = helix_val_as_string(val_rh);
+
+		result = strcmp(tmp_lh_str, tmp_rh_str) == 0 ? 0 : 1;
+	}
+
+	free(tmp_lh_str);
+	free(tmp_rh_str);
+
+	if (result) {
+		// lex the true block
+		++chr;
+		lex();
+
+		// push past the rcurly
+		++chr;
+
+		// eat space between rcurly and possible else/elseif
+		eat_space();
+
+		if (strncmp(source + chr, "else", 4) == 0) {
+			chr += 4;
+			eat_braced_block();
+		}
+	} else {
+		// eat the true block
+		eat_braced_block();
+
+		// eat space between rcurly and possible else/elseif
+		eat_space();
+
+		if (strncmp(source + chr, "else", 4) == 0) {
+			chr += 4;
+
+			eat_space();
+
+			if (source[chr] != '{') {
+				HELIX_PARSE("Expected { after conditional");
+			}
+
+			// lex the false block
+			++chr;
+			lex();
+		}
+	}
 }
 
 void handle_construct(const char *construct) {
 	if (strcmp(construct, "out") == 0) {
 		chr = chr + 3;
-		con_out(evaluate_expression());
+		con_out();
 	} else if (strcmp(construct, "if") == 0) {
 		chr += 2;
 		con_if();
@@ -38,10 +141,7 @@ helix_val *evaluate_expression(void) {
 	int match;
 	struct slre_cap cap[1];
 
-	helix_val *value = malloc(sizeof(helix_val));
-	value->type = HELIX_VAL_STRING;
-	value->d.val_string = malloc(sizeof(char) * 1);
-	value->d.val_string[0] = '\0';
+	helix_val *val = init_helix_val();
 
 	// space
 	if (source[chr] == ' ') {
@@ -50,6 +150,8 @@ helix_val *evaluate_expression(void) {
 
 	// handle string
 	if (source[chr] == '\'') {
+		val->type = HELIX_VAL_STRING;
+
 		++chr;
 
 		infinite {
@@ -68,17 +170,17 @@ helix_val *evaluate_expression(void) {
 			if (source[chr] == '\\') {
 				// peek forward
 				if (source[chr + 1] == 'n') {
-					EXPAND_STRING_BY(value->d.val_string, char, 1);
-					strcat(value->d.val_string, "\n");
+					EXPAND_STRING_BY(val->d.val_string, char, 1);
+					strcat(val->d.val_string, "\n");
 					++chr;
 					++chr;
 					continue;
 				}
 			}
 
-			EXPAND_STRING_BY(value->d.val_string, char, 1);
+			EXPAND_STRING_BY(val->d.val_string, char, 1);
 
-			strncat(value->d.val_string, source + chr, 1);
+			strncat(val->d.val_string, source + chr, 1);
 			++chr;
 		}
 	}
@@ -129,9 +231,9 @@ helix_val *evaluate_expression(void) {
 		// combine strings
 		size_t length = strlen(concatenated->d.val_string);
 
-		EXPAND_STRING_BY(value->d.val_string, char, length);
+		EXPAND_STRING_BY(val->d.val_string, char, length);
 
-		strcat(value->d.val_string, concatenated->d.val_string);
+		strcat(val->d.val_string, concatenated->d.val_string);
 
 		// discard the concatenated stuff
 		free_helix_val(concatenated);
@@ -142,5 +244,5 @@ helix_val *evaluate_expression(void) {
 		HELIX_PARSE("Unterminated expression");
 	}
 
-	return value;
+	return val;
 }
