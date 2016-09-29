@@ -14,8 +14,8 @@ char *source;
 int line = 1;
 int chr = 0;
 
-int stack_size = 0;
-stack_frame *stack;
+int stack_size = 1;
+stack_frame **stack;
 
 int env_debug = false;
 
@@ -70,6 +70,8 @@ int main(int argc, char **argv) {
     // transfer file into source and close
     fread(source, file_size, 1, file);
     fclose(file);
+
+    stack_init();
 
     lex();
 

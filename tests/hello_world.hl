@@ -1,3 +1,8 @@
+// method def
+fn add(n1, n2) {
+    return n1 + n2;
+}
+
 // call method
 output::print('asdf\n');
 

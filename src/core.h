@@ -40,6 +40,12 @@ const char *re_std;
 #define TOKEN_OPERATOR_GT   8 // >=
 
 typedef struct {
+    int key_count;
+    char **keys;
+    char **values;
+} helix_hash_table;
+
+typedef struct {
     int type;
     union {
         int val_int;
@@ -55,20 +61,16 @@ typedef struct {
     char *name;
     int char_pos;
     int line_pos;
-    union {
-        int return_int;
-        double return_double;
-        float return_float;
-        char *return_string;
-        int return_bool;
-        void *something;
-    } return_val;
+    helix_hash_table *local_vars;
+    helix_val *return_val;
 } stack_frame;
 
 #define EXPAND_STRING_BY(var, type, amt) var = realloc(var, sizeof(type) * (strlen(var) + amt + 1));
 #define SHRINK_STRING_BY(var, type, amt) var = realloc(var, sizeof(type) * (strlen(var) + 1 - amt));
 
-void stack_push(stack_frame);
+void stack_push(stack_frame*);
+helix_val *stack_pop(void);
+void stack_init(void);
 void stack_destroy(void);
 
 helix_val *init_helix_val(void);
