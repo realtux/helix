@@ -2,6 +2,9 @@
 
 #include "core.h"
 
+/**
+ * signature: void output::print(string value);
+ */
 void output_print(helix_val *val) {
 	printf("%s", val->d.val_string);
 }

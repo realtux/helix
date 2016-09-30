@@ -1,7 +1,8 @@
 #ifndef CORE_H
 #define CORE_H
 
-#define HELIX_GENERAL(msg) printf("HELIX General: %s\n", msg);
+#define HELIX_GENERAL(msg) \
+    printf("HELIX General: %s\n", msg);
 #define HELIX_CORE(msg) \
     printf("Helix Core: %s at line %d\n", msg, line); \
     stack_trace();
@@ -40,12 +41,6 @@ const char *re_std;
 #define TOKEN_OPERATOR_GT   8 // >=
 
 typedef struct {
-    int key_count;
-    char **keys;
-    char **values;
-} helix_hash_table;
-
-typedef struct {
     int type;
     union {
         int val_int;
@@ -58,6 +53,12 @@ typedef struct {
 } helix_val;
 
 typedef struct {
+    int key_count;
+    char **keys;
+    helix_val **vals;
+} helix_hash_table;
+
+typedef struct {
     char *name;
     int char_pos;
     int line_pos;
@@ -67,12 +68,16 @@ typedef struct {
 
 #define EXPAND_STRING_BY(var, type, amt) var = realloc(var, sizeof(type) * (strlen(var) + amt + 1));
 #define SHRINK_STRING_BY(var, type, amt) var = realloc(var, sizeof(type) * (strlen(var) + 1 - amt));
+#define EXPAND_ARRAY_TO(var, type, amt) var = realloc(var, sizeof(type) * amt);
+#define SHRINK_ARRAY_TO(var, type, amt) var = realloc(var, sizeof(type) * amt);
 
 void stack_push(stack_frame*);
 helix_val *stack_pop(void);
 void stack_init(void);
 void stack_destroy(void);
-
+helix_hash_table *hash_table_init(void);
+void hash_table_add(char*, helix_val*);
+helix_val *hash_table_get(const char*);
 helix_val *init_helix_val(void);
 char *helix_val_as_string(helix_val*);
 void free_helix_val(helix_val*);

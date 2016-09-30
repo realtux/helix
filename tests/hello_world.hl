@@ -1,7 +1,7 @@
 // method def
-fn add(n1, n2) {
-    return n1 + n2;
-}
+//fn add(n1, n2) {
+//    return n1 + n2;
+//}
 
 // call method
 output::print('asdf\n');
@@ -13,7 +13,7 @@ output::print('a' . ' ' . 'b' . ' ' . 'c' . '\n');
 var name = 'brian';
 
 // handle if
-if 'brian' == 'abrian' {
+if name == 'brian' {
     output::print('its brian, yes\n');
 
     if 'cool' == 'cool' {

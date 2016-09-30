@@ -14,6 +14,9 @@ extern int chr;
 
 extern char *source;
 
+extern int stack_size;
+extern stack_frame **stack;
+
 void con_out(void) {
 	helix_val *val = evaluate_expression();
 
@@ -125,6 +128,49 @@ void con_if(void) {
 	}
 }
 
+void con_fn(void) {
+
+}
+
+void con_var(void) {
+	if (source[chr] != ' ') {
+		HELIX_PARSE("Expected space after 'var'");
+	}
+
+	eat_space();
+
+	char *var = malloc(1);
+	var[0] = '\0';
+
+	infinite {
+		// fail on newline or endline
+		if (source[chr] == '\n' || source[chr] == '\0') {
+			HELIX_PARSE("Unterminated expression");
+		}
+
+		if (source[chr] == ' ' || source[chr] == '=') {
+			eat_space();
+			break;
+		}
+
+		EXPAND_STRING_BY(var, char, 1);
+		strncat(var, source + chr, 1);
+		++chr;
+	}
+
+	if (source[chr] != '=') {
+		HELIX_PARSE("Expecting '=' after variable name");
+	}
+
+	++chr;
+
+	eat_space();
+
+	helix_val *val = evaluate_expression();
+
+	hash_table_add(var, val);
+}
+
 void handle_construct(const char *construct) {
 	if (strcmp(construct, "out") == 0) {
 		chr = chr + 3;
@@ -132,6 +178,12 @@ void handle_construct(const char *construct) {
 	} else if (strcmp(construct, "if") == 0) {
 		chr += 2;
 		con_if();
+	} else if (strcmp(construct, "fn") == 0) {
+		chr += 2;
+		con_fn();
+	} else if (strcmp(construct, "var") == 0) {
+		chr += 3;
+		con_var();
 	} else {
 		HELIX_FATAL("Unknown keyword");
 	}

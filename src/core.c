@@ -16,8 +16,8 @@ void stack_init(void) {
 	frame->line_pos = 1;
 	frame->name = malloc(sizeof(char) * 5);
 	strcpy(frame->name, "main");
-	frame->local_vars = malloc(sizeof(helix_hash_table));
-	frame->local_vars->key_count = 0;
+	frame->local_vars = hash_table_init();
+	frame->return_val = init_helix_val();
 
 	stack[stack_size - 1] = frame;
 }
@@ -43,6 +43,45 @@ void stack_destroy(void) {
 	if (stack == NULL) return;
 
 	free(stack);
+}
+
+helix_hash_table *hash_table_init(void) {
+	helix_hash_table *table = malloc(sizeof(helix_hash_table));
+	table->key_count = 0;
+	return table;
+}
+
+void hash_table_add(char *key, helix_val *val) {
+	int key_count = stack[stack_size-1]->local_vars->key_count;
+	int s = stack_size - 1;
+
+	++stack[s]->local_vars->key_count;
+
+	// initial element check
+	if (key_count == 0) {
+		stack[s]->local_vars->keys = malloc(sizeof(char *) * 1);
+		stack[s]->local_vars->vals = malloc(sizeof(helix_val *) * 1);
+	} else {
+		EXPAND_ARRAY_TO(stack[stack_size - 1]->local_vars->keys, char *, key_count + 1)
+	}
+
+	stack[s]->local_vars->keys[key_count] = key;
+	stack[s]->local_vars->vals[key_count] = val;
+}
+
+helix_val *hash_table_get(const char *key) {
+	int s = stack_size - 1;
+	int key_count = stack[s]->local_vars->key_count;
+
+	int pos = 0;
+
+	infinite {
+		if (pos == key_count) return NULL;
+
+		if (strcmp(key, stack[s]->local_vars->keys[pos]) == 0) {
+			return stack[s]->local_vars->vals[pos];
+		}
+	}
 }
 
 helix_val *init_helix_val(void) {
