@@ -23,11 +23,6 @@ int main(int argc, char **argv) {
     // setup env
     const char *env_debug_value = getenv("DEBUG");
 
-    // load up header declarations
-    re_keywords = "^(out|if|fn|var)\\s";
-    re_integers = "[0-9]+";
-    re_std = "^([a-zA-Z_0-9]+::[a-zA-Z_0-9]+)\\s*?\\(";
-
     // timing
     clock_t begin;
     clock_t end;

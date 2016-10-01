@@ -81,6 +81,8 @@ helix_val *hash_table_get(const char *key) {
 		if (strcmp(key, stack[s]->local_vars->keys[pos]) == 0) {
 			return stack[s]->local_vars->vals[pos];
 		}
+
+		++pos;
 	}
 }
 

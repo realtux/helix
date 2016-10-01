@@ -11,9 +11,12 @@ output::print('a' . ' ' . 'b' . ' ' . 'c' . '\n');
 
 // assignment
 var name = 'brian';
+var name2 = 'emmanuel';
+var name3 = 'tom';
+var name4 = '';
 
 // handle if
-if name == 'brian' {
+if name != 'brian' {
     output::print('its brian, yes\n');
 
     if 'cool' == 'cool' {
@@ -21,4 +24,26 @@ if name == 'brian' {
     }
 } else {
     output::print('its not brian, no\n');
+}
+
+output::print('\n\n\n---\n');
+
+if name == name2 {
+    output::print('names match\n');
+}
+
+if name != name2 {
+    output::print('names dont match\n');
+}
+
+if name {
+    output::print('truthy, yo\n');
+}
+
+if !name4 {
+    output::print('falsy, yo\n');
+}
+
+while name == 'brian' {
+    output::print('looping!!!')
 }

@@ -28,6 +28,7 @@ void eat_comment(void) {
 	infinite {
 		if (source[chr] == '\n' ||
 			source[chr] == '\0') {
+			++chr;
 			++line;
 			break;
 		}
@@ -90,22 +91,25 @@ void lex(void) {
 
 		// eat semi colon
 		if (source[chr] == ';') {
-			goto next;
+			++chr;
+			continue;
 		}
 
 		// eat newlines
 		if (source[chr] == '\n') {
 			++line;
-			goto next;
+			++chr;
+			continue;
 		}
 
 		// end braced block
 		if (source[chr] == '}') {
+			++chr;
 			return;
 		}
 
 		// reserved keywords
-		match = slre_match(re_keywords, source + chr, 32, cap, 1, 0);
+		match = slre_match(LEXER_RE_KEYWORDS, source + chr, 32, cap, 1, 0);
 
 		if (match >= 0) {
 			// hold the next keyword
@@ -118,25 +122,24 @@ void lex(void) {
 			handle_construct(keyword);
 
 			free(keyword);
-			goto next;
+
+			continue;
 		}
 
 		// std call
-		match = slre_match(re_std, source + chr, 32, cap, 1, 0);
+		match = slre_match(LEXER_RE_STD, source + chr, 32, cap, 1, 0);
 
 		if (match >= 0) evaluate_expression();
 
 		// eat comments
 		if (source[chr] == '/' && source[chr + 1] == '/') {
 			eat_comment();
-			goto next;
+			continue;
 		}
 
 		// done with the source file
 		if (source[chr] == '\0') break;
 
-		// move to next character
-		next:
 		++chr;
 	}
 }

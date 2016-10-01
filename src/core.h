@@ -1,29 +1,15 @@
 #ifndef CORE_H
 #define CORE_H
 
-#define HELIX_GENERAL(msg) \
-    printf("HELIX General: %s\n", msg);
-#define HELIX_CORE(msg) \
-    printf("Helix Core: %s at line %d\n", msg, line); \
-    stack_trace();
-#define HELIX_FATAL(msg) \
-    printf("Helix Fatal: %s at line %d\n", msg, line); \
-    stack_trace();
-#define HELIX_PARSE(msg) \
-    printf("Helix Parse: %s at line %d\n", msg, line); \
-    stack_trace();
-#define HELIX_WARNING(msg) \
-    printf("Helix Warning: %s at line %d\n", msg, line); \
-    stack_trace();
-
 #define true 1
 #define false 0
 
 #define infinite for(;;)
 
-const char *re_keywords;
-const char *re_integers;
-const char *re_std;
+#define LEXER_RE_KEYWORDS "^(out|if|fn|var|while|for)\\s"
+#define LEXER_RE_INTEGERS "^([0-9]+)"
+#define LEXER_RE_STD "^([a-zA-Z_0-9]+::[a-zA-Z_0-9]+)\\s*?\\("
+#define LEXER_RE_VARIABLES "^([a-zA-Z0-9_]+)"
 
 #define HELIX_VAL_INT 1
 #define HELIX_VAL_FLOAT 2

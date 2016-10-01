@@ -34,61 +34,86 @@ void con_out(void) {
 void con_if(void) {
 	eat_space();
 
+	// handle inverse operator
+	int inverse = source[chr] == '!' ? 1 : 0;
+
+	if (inverse) ++chr;
+
+	// get the left hand value
 	helix_val *val_lh = evaluate_expression();
 
+	// eat space between the left hand value and operator/brace
 	eat_space();
-
-	int operator;
-
-	if (strncmp(source + chr, "===", 3) == 0) {
-		operator = TOKEN_OPERATOR_SEQ;
-		chr += 3;
-	} else if (strncmp(source + chr, "==", 2) == 0) {
-		operator = TOKEN_OPERATOR_EQ;
-		chr += 2;
-	} else if (strncmp(source + chr, "!==", 3) == 0) {
-		operator = TOKEN_OPERATOR_SNEQ;
-		chr += 3;
-	} else if (strncmp(source + chr, "!=", 2) == 0) {
-		operator = TOKEN_OPERATOR_NEQ;
-		chr += 2;
-	} else {
-		HELIX_FATAL("Strange operator found");
-	}
-
-	eat_space();
-
-	helix_val *val_rh = evaluate_expression();
-
-	eat_space();
-
-	if (source[chr] != '{') {
-		HELIX_PARSE("Expected { after conditional");
-	}
 
 	int result;
 
-	char *tmp_lh_str;
-	char *tmp_rh_str;
+	// check for truthy/falsy evaluation
+	if (source[chr] == '{') {
+		if (val_lh->type == HELIX_VAL_STRING) {
+			result = strcmp(val_lh->d.val_string, "") == 0 ? 0 : 1;
+		} else if (val_lh->type == HELIX_VAL_INT) {
+			result = val_lh->d.val_int == 0 ? 0 : 1;
+		} else if (val_lh->type == HELIX_VAL_FLOAT) {
+			result = val_lh->d.val_float == 0.0 ? 0 : 1;
+		} else if (val_lh->type == HELIX_VAL_BOOL) {
+			result = val_lh->d.val_bool == 0 ? 0 : 1;
+		}
+	} else {
+		int operator;
 
-	if (operator == TOKEN_OPERATOR_SEQ) {
-		if (val_lh->type != val_rh->type) result = 0;
-	} else if (operator == TOKEN_OPERATOR_EQ) {
-		tmp_lh_str = helix_val_as_string(val_lh);
-		tmp_rh_str = helix_val_as_string(val_rh);
+		if (strncmp(source + chr, "===", 3) == 0) {
+			operator = TOKEN_OPERATOR_SEQ;
+			chr += 3;
+		} else if (strncmp(source + chr, "==", 2) == 0) {
+			operator = TOKEN_OPERATOR_EQ;
+			chr += 2;
+		} else if (strncmp(source + chr, "!==", 3) == 0) {
+			operator = TOKEN_OPERATOR_SNEQ;
+			chr += 3;
+		} else if (strncmp(source + chr, "!=", 2) == 0) {
+			operator = TOKEN_OPERATOR_NEQ;
+			chr += 2;
+		} else {
+			HELIX_FATAL("Strange operator found");
+		}
 
-		result = strcmp(tmp_lh_str, tmp_rh_str) == 0 ? 1 : 0;
-	} else if (operator == TOKEN_OPERATOR_SNEQ) {
-		if (val_lh->type != val_rh->type) result = 0;
-	} else if (operator == TOKEN_OPERATOR_NEQ) {
-		tmp_lh_str = helix_val_as_string(val_lh);
-		tmp_rh_str = helix_val_as_string(val_rh);
+		eat_space();
 
-		result = strcmp(tmp_lh_str, tmp_rh_str) == 0 ? 0 : 1;
+		helix_val *val_rh = evaluate_expression();
+
+		eat_space();
+
+		if (source[chr] != '{') {
+			HELIX_PARSE("Expected { after conditional");
+		}
+
+		char *tmp_lh_str;
+		char *tmp_rh_str;
+
+		if (operator == TOKEN_OPERATOR_SEQ) {
+			if (val_lh->type != val_rh->type) result = 0;
+		} else if (operator == TOKEN_OPERATOR_EQ) {
+			tmp_lh_str = helix_val_as_string(val_lh);
+			tmp_rh_str = helix_val_as_string(val_rh);
+
+			result = strcmp(tmp_lh_str, tmp_rh_str) == 0 ? 1 : 0;
+		} else if (operator == TOKEN_OPERATOR_SNEQ) {
+			if (val_lh->type != val_rh->type) result = 0;
+		} else if (operator == TOKEN_OPERATOR_NEQ) {
+			tmp_lh_str = helix_val_as_string(val_lh);
+			tmp_rh_str = helix_val_as_string(val_rh);
+
+			result = strcmp(tmp_lh_str, tmp_rh_str) == 0 ? 0 : 1;
+		}
+
+		free(tmp_lh_str);
+		free(tmp_rh_str);
 	}
 
-	free(tmp_lh_str);
-	free(tmp_rh_str);
+	// handle inverse
+	if (inverse) {
+		result = result == 0 ? 1 : 0;
+	}
 
 	if (result) {
 		// lex the true block
@@ -169,6 +194,12 @@ void con_var(void) {
 	helix_val *val = evaluate_expression();
 
 	hash_table_add(var, val);
+
+	eat_space();
+}
+
+void con_while(void) {
+
 }
 
 void handle_construct(const char *construct) {
@@ -183,6 +214,9 @@ void handle_construct(const char *construct) {
 		con_fn();
 	} else if (strcmp(construct, "var") == 0) {
 		chr += 3;
+		con_var();
+	} else if (strcmp(construct, "while") == 0) {
+		chr += 5;
 		con_var();
 	} else {
 		HELIX_FATAL("Unknown keyword");
@@ -238,7 +272,7 @@ helix_val *evaluate_expression(void) {
 	}
 
 	// handle integer
-	match = slre_match(re_integers, source + chr, 32, cap, 1, 0);
+	match = slre_match(LEXER_RE_INTEGERS, source + chr, 32, cap, 1, 0);
 
 	if (match >= 0) {
 		infinite {
@@ -256,7 +290,7 @@ helix_val *evaluate_expression(void) {
 	}
 
 	// std call
-	match = slre_match(re_std, source + chr, 32, cap, 1, 0);
+	match = slre_match(LEXER_RE_STD, source + chr, 32, cap, 1, 0);
 
 	if (match >= 0) {
 		// get the std name
@@ -271,9 +305,28 @@ helix_val *evaluate_expression(void) {
 		free(std);
 	}
 
-	eat_space();
+	// variable
+	match = slre_match(LEXER_RE_VARIABLES, source + chr, 32, cap, 1, 0);
+
+	if (match >= 0) {
+		// get the variable name
+		char *variable_name = malloc(sizeof(char) * (cap->len + 1));
+
+		// copy it in
+		strncpy(variable_name, cap->ptr, cap->len);
+		variable_name[cap->len] = '\0';
+
+		val = hash_table_get(variable_name);
+
+		// push past variable name
+		chr += strlen(variable_name);
+		eat_space();
+
+		free(variable_name);
+	}
 
 	// concatenation?
+	eat_space();
 	if (source[chr] == '.') {
 		++chr;
 

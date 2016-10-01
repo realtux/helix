@@ -5,6 +5,7 @@
 #include "core.h"
 #include "constructs.h"
 #include "error.h"
+#include "lexer.h"
 
 #include "std/output.h"
 
@@ -17,7 +18,7 @@ void handle_std(const char *namespace) {
 	// eat up the namespace and method name
 	while (source[chr] != '(') ++chr;
 
-	// and the paren
+	// and the lparen
 	++chr;
 
 	if (strcmp(namespace, "output::print") == 0) {
@@ -33,4 +34,9 @@ void handle_std(const char *namespace) {
 
 		free(message);
 	}
+
+	eat_space();
+
+	// rparen
+	++chr;
 }
