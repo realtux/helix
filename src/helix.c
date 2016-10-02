@@ -6,6 +6,7 @@
 #include "helix.h"
 #include "core.h"
 #include "lexer.h"
+#include "regex.h"
 
 #include "error.h"
 
@@ -23,15 +24,15 @@ int main(int argc, char **argv) {
     // setup env
     const char *env_debug_value = getenv("DEBUG");
 
+    if (env_debug_value != NULL && strcmp(getenv("DEBUG"), "1") == 0) {
+        env_debug = true;
+    }
+
     // timing
     clock_t begin;
     clock_t end;
     if (env_debug) {
         begin = clock();
-    }
-
-    if (env_debug_value != NULL && strcmp(getenv("DEBUG"), "1") == 0) {
-        env_debug = true;
     }
 
     if (argc < 2) {
@@ -63,8 +64,12 @@ int main(int argc, char **argv) {
     }
 
     // transfer file into source and close
-    fread(source, file_size, 1, file);
+    size_t transferred = fread(source, file_size, 1, file);
     fclose(file);
+
+    if (transferred == 0) {
+        HELIX_WARNING("File empty");
+    }
 
     stack_init();
 
@@ -81,7 +86,7 @@ int main(int argc, char **argv) {
         // execution details
         printf("\n---->\n");
         printf("Lines Read: %d\n", line);
-        printf("Execution Time: %0.4fs\n", (double) (end - begin) / CLOCKS_PER_SEC);
+        printf("Execution Time: %0.6fs\n", (double) (end - begin) / CLOCKS_PER_SEC);
         printf("---->\n");
     }
 

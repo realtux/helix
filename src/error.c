@@ -71,4 +71,6 @@ void helix_log_error(const char *type, const char *msg, int line,
 	if (dump_stack) stack_trace();
 
 	if (strcmp(type, "Parse") == 0) exit(EXIT_FAILURE);
+	if (strcmp(type, "Fatal") == 0) exit(EXIT_FAILURE);
+	if (strcmp(type, "Core") == 0) exit(EXIT_FAILURE);
 }

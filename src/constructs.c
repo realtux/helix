@@ -7,6 +7,7 @@
 #include "constructs.h"
 #include "error.h"
 #include "lexer.h"
+#include "regex.h"
 #include "std.h"
 #include "tpv/slre.h"
 
@@ -89,7 +90,45 @@ void con_if(void) {
 }
 
 void con_fn(void) {
+	eat_space();
 
+	int match;
+	struct slre_cap cap[1];
+
+	match = slre_match("^([A-Za-z0-9_]+)\\s*?\\(", source + chr, 32, cap, 1, 0);
+
+	if (match >= 0) {
+		// get the function name
+		char *function_name = malloc(sizeof(char) * (cap->len + 1));
+
+		// copy it in
+		strncpy(function_name, cap->ptr, cap->len);
+		function_name[cap->len] = '\0';
+
+		int function_start;
+
+		chr += strlen(function_name);
+
+		// eat space between function name and paren
+		eat_space();
+
+		if (source[chr] == '(') {
+			// optionally handle arguments
+			++chr;++chr;
+		}
+
+		// eat space between args and lcurly
+		eat_space();
+
+		// push past lcurly
+		++chr;
+
+		function_start = chr;
+
+		eat_braced_block();
+
+
+	}
 }
 
 void con_var(void) {
@@ -186,8 +225,11 @@ void handle_construct(const char *construct) {
 }
 
 helix_val *evaluate_expression(void) {
-	int match;
-	struct slre_cap cap[1];
+	int num_matches = 0;
+	int match_len;
+
+	int match;//remove
+	struct slre_cap cap[1];//remove
 
 	helix_val *lh_value = init_helix_val();
 
@@ -252,19 +294,22 @@ helix_val *evaluate_expression(void) {
 	}
 
 	// std call
-	match = slre_match(LEXER_RE_STD, source + chr, 32, cap, 1, 0);
+    char **matches = pcre_match(LEXER_RE_STD, source + chr, &num_matches);
 
-	if (match >= 0) {
+	if (num_matches > 0) {
+		match_len = strlen(matches[1]);
+
 		// get the std name
-		char *std = malloc(sizeof(char) * (cap->len + 1));
+		char *std = malloc(sizeof(char) * (match_len + 1));
 
 		// copy it in
-		strncpy(std, cap->ptr, cap->len);
-		std[cap->len] = '\0';
+		strncpy(std, matches[1], match_len);
+		std[match_len] = '\0';
 
 		handle_std(std);
 
 		free(std);
+		free_pcre_matches(matches, num_matches);
 	}
 
 	// variable
@@ -279,6 +324,12 @@ helix_val *evaluate_expression(void) {
 		variable_name[cap->len] = '\0';
 
 		helix_val *lookup_val = hash_table_get(variable_name);
+
+		if (lookup_val == NULL) {
+			char error[1000];
+			sprintf(error, "Variable '%s' has not been defined", variable_name);
+			HELIX_FATAL(error);
+		}
 
 		helix_val_set_type(lh_value, lookup_val->type);
 
@@ -350,33 +401,39 @@ helix_val *evaluate_expression(void) {
 		char *tmp_rh_str;
 
 		if (operator == TOKEN_OPERATOR_SEQ) {
-			if (lh_value->type != rh_value->type) result = 0;
+			if (lh_value->type != rh_value->type) {
+				result = 0;
+			} else {
+				result = 0;
+			}
 		} else if (operator == TOKEN_OPERATOR_EQ) {
 			tmp_lh_str = helix_val_as_string(lh_value);
 			tmp_rh_str = helix_val_as_string(rh_value);
 
 			result = strcmp(tmp_lh_str, tmp_rh_str) == 0 ? 1 : 0;
+
+			free(tmp_lh_str);
+			free(tmp_rh_str);
 		} else if (operator == TOKEN_OPERATOR_SNEQ) {
-			if (lh_value->type != rh_value->type) result = 0;
+			if (lh_value->type != rh_value->type) {
+				result = 0;
+			} else {
+				result = 0;
+			}
 		} else if (operator == TOKEN_OPERATOR_NEQ) {
 			tmp_lh_str = helix_val_as_string(lh_value);
 			tmp_rh_str = helix_val_as_string(rh_value);
 
 			result = strcmp(tmp_lh_str, tmp_rh_str) == 0 ? 0 : 1;
-		}
 
-		free(tmp_lh_str);
-		free(tmp_rh_str);
+			free(tmp_lh_str);
+			free(tmp_rh_str);
+		}
 
 		free_helix_val(rh_value);
 
 		helix_val_set_type(lh_value, HELIX_VAL_BOOL);
 		lh_value->d.val_bool = result;
-	}
-
-	// newline means missing semi colon
-	if (source[chr] == '\n' || source[chr] == '\0') {
-		HELIX_PARSE("Unterminated expression");
 	}
 
 	return lh_value;

@@ -1,6 +1,8 @@
 #ifndef CORE_H
 #define CORE_H
 
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+
 #define true 1
 #define false 0
 
@@ -10,6 +12,7 @@
 #define LEXER_RE_ASSIGNMENT "^([a-zA-Z0-9_]+)\\s*?="
 #define LEXER_RE_INTEGERS "^([0-9]+)"
 #define LEXER_RE_STD "^([a-zA-Z_0-9]+::[a-zA-Z_0-9]+)\\s*?\\("
+#define LEXER_RE_FN "^([a-zA-Z_0-9]+)\\s*?\\("
 #define LEXER_RE_VARIABLES "^([a-zA-Z0-9_]+)"
 
 #define HELIX_VAL_INT 1

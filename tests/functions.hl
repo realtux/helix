@@ -1,0 +1,31 @@
+output::print('yes')
+
+fn func_g() {
+    return 'yes'
+}
+
+fn func_f() {
+    return func_g()
+}
+
+fn func_e() {
+    return func_f()
+}
+
+fn func_d() {
+    return func_e()
+}
+
+fn func_c() {
+    return func_d()
+}
+
+fn func_b() {
+    return func_c()
+}
+
+fn func_a() {
+    return func_b()
+}
+
+output::print(func_a())

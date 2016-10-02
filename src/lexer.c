@@ -88,8 +88,7 @@ void lex(void) {
 
 	infinite {
 		// eat space
-		if (source[chr] == ' ' ||
-			source[chr] == '\t') {
+		if (source[chr] == ' ' || source[chr] == '\t') {
 			eat_space();
 			continue;
 		}

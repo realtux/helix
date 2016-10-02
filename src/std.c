@@ -25,7 +25,7 @@ void handle_std(const char *namespace) {
 		output_print(evaluate_expression());
 	} else {
 		char *suffix = " is not a function";
-		char *message = malloc(sizeof(char) * (strlen(namespace) + strlen(suffix)));
+		char *message = malloc(sizeof(char) * (strlen(namespace) + strlen(suffix) + 1));
 
 		strcpy(message, namespace);
 		strcat(message, suffix);
