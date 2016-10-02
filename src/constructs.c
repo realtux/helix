@@ -93,10 +93,6 @@ void con_fn(void) {
 }
 
 void con_var(void) {
-	if (source[chr] != ' ') {
-		HELIX_PARSE("Expected space after 'var'");
-	}
-
 	eat_space();
 
 	char *var = malloc(1);
@@ -181,9 +177,6 @@ void handle_construct(const char *construct) {
 	} else if (strcmp(construct, "fn") == 0) {
 		chr += 2;
 		con_fn();
-	} else if (strcmp(construct, "var") == 0) {
-		chr += 3;
-		con_var();
 	} else if (strcmp(construct, "while") == 0) {
 		chr += 5;
 		con_while();

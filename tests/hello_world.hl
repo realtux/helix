@@ -1,50 +1,58 @@
 // method def
-//fn add(n1, n2) {
-//    return n1 + n2;
-//}
+fn add(n1, n2) {
+    return n1 + n2
+}
 
 // call method
-output::print('calling output print\n');
+output::print('calling output print\n')
 
 // concat
-output::print('cat1' . ' ' . 'cat2' . ' ' . 'cat3' . '\n');
+output::print('cat1' . ' ' . 'cat2' . ' ' . 'cat3' . '\n')
 
 // assignment
-var name = 'brian';
-var name2 = 'emmanuel';
-var name3 = 'tom';
-var name4 = '';
+name= 'brian'
+name2     = 'emmanuel'
+name3 ='tom'
+name4='what?'
 
 // handle if
 if name != 'brian' {
-    output::print('name is not brian\n');
+    output::print('name is not brian\n')
 
     if 'cool' == 'cool' {
-        output::print('woah, got it\n');
+        output::print('woah, got it\n')
     }
 } else {
-    output::print('name is brian, no\n');
+    output::print('name is not brian, no\n')
 }
 
 if name == name2 {
-    output::print('name == name2\n');
+    output::print('name == name2\n')
 }
 
 if name != name2 {
-    output::print('name != name2\n');
+    output::print('name != name2\n')
 }
 
 if name {
-    output::print('name truthy, yo\n');
+    output::print('name truthy, yo\n')
 }
 
-if !name4 {
-    output::print('name4 falsy, yo\n');
+if name4 {
+    output::print('name4 falsy, yo\n')
 }
 
 while name == 'brian' {
-    output::print('looping!!!\n');
-    var name = 'tim';
+    output::print('looping!!!\n')
+    name = 'tim'
 }
 
-output::print('after while\n');
+output::print('after while\n')
+
+// composite variables
+test = 'yes'
+test2 = test
+
+if test2 == 'yes' {
+    output::print('i win')
+}

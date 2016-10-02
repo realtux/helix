@@ -1,7 +1,11 @@
 #ifndef CONSTRUCTS_H
 #define CONSTRUCTS_H
 
-void out(helix_val *);
+void con_out(void);
+void con_if(void);
+void con_fn(void);
+void con_var(void);
+void con_while(void);
 void handle_construct(const char *);
 helix_val *evaluate_expression(void);
 

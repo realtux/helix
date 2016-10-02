@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include "core.h"
@@ -68,4 +69,6 @@ void helix_log_error(const char *type, const char *msg, int line,
 	free(stamp);
 
 	if (dump_stack) stack_trace();
+
+	if (strcmp(type, "Parse") == 0) exit(EXIT_FAILURE);
 }

@@ -6,7 +6,8 @@
 
 #define infinite for(;;)
 
-#define LEXER_RE_KEYWORDS "^(out|if|fn|var|while|for)\\s"
+#define LEXER_RE_KEYWORDS "^(out|if|fn|while|for)\\s"
+#define LEXER_RE_ASSIGNMENT "^([a-zA-Z0-9_]+)\\s*?="
 #define LEXER_RE_INTEGERS "^([0-9]+)"
 #define LEXER_RE_STD "^([a-zA-Z_0-9]+::[a-zA-Z_0-9]+)\\s*?\\("
 #define LEXER_RE_VARIABLES "^([a-zA-Z0-9_]+)"
@@ -17,14 +18,14 @@
 #define HELIX_VAL_BOOL 4
 #define HELIX_VAL_DOUBLE 4
 
-#define TOKEN_OPERATOR_SEQ  1 // ===
-#define TOKEN_OPERATOR_EQ   2 // ==
-#define TOKEN_OPERATOR_NEQ  3 // !=
+#define TOKEN_OPERATOR_SEQ 1 // ===
+#define TOKEN_OPERATOR_EQ 2 // ==
+#define TOKEN_OPERATOR_NEQ 3 // !=
 #define TOKEN_OPERATOR_SNEQ 4 // !==
-#define TOKEN_OPERATOR_LTE  5 // <=
-#define TOKEN_OPERATOR_GTE  6 // >=
-#define TOKEN_OPERATOR_LT   7 // >=
-#define TOKEN_OPERATOR_GT   8 // >=
+#define TOKEN_OPERATOR_LTE 5 // <=
+#define TOKEN_OPERATOR_GTE 6 // >=
+#define TOKEN_OPERATOR_LT 7 // >=
+#define TOKEN_OPERATOR_GT 8 // >=
 
 typedef struct {
     int type;

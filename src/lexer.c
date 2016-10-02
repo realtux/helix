@@ -131,10 +131,21 @@ void lex(void) {
 			continue;
 		}
 
+		// assignment
+		match = slre_match(LEXER_RE_ASSIGNMENT, source + chr, 32, cap, 1, 0);
+
+		if (match >= 0) {
+			con_var();
+			continue;
+		}
+
 		// std call
 		match = slre_match(LEXER_RE_STD, source + chr, 32, cap, 1, 0);
 
-		if (match >= 0) evaluate_expression();
+		if (match >= 0) {
+			evaluate_expression();
+			continue;
+		}
 
 		// eat comments
 		if (source[chr] == '/' && source[chr + 1] == '/') {
@@ -145,6 +156,6 @@ void lex(void) {
 		// done with the source file
 		if (source[chr] == '\0') break;
 
-		++chr;
+		HELIX_PARSE("Syntax error");
 	}
 }
