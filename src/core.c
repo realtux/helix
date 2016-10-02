@@ -1,8 +1,15 @@
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
 #include "core.h"
+#include "error.h"
+
+extern int line;
+extern int chr;
+
+extern char *source;
 
 extern int stack_size;
 extern stack_frame **stack;
@@ -52,6 +59,14 @@ helix_hash_table *hash_table_init(void) {
 }
 
 void hash_table_add(char *key, helix_val *val) {
+	// check if the variable already exists, in which case it can be replaced
+	helix_val **duplicate = hash_table_get_ref(key);
+
+	if (duplicate != NULL) {
+		*duplicate = val;
+		return;
+	}
+
 	int key_count = stack[stack_size-1]->local_vars->key_count;
 	int s = stack_size - 1;
 
@@ -71,27 +86,74 @@ void hash_table_add(char *key, helix_val *val) {
 
 helix_val *hash_table_get(const char *key) {
 	int s = stack_size - 1;
-	int key_count = stack[s]->local_vars->key_count;
 
-	int pos = 0;
+	// check each frame downward
+	while (s >= 0) {
+		int key_count = stack[s]->local_vars->key_count;
 
-	infinite {
-		if (pos == key_count) return NULL;
+		int pos = 0;
 
-		if (strcmp(key, stack[s]->local_vars->keys[pos]) == 0) {
-			return stack[s]->local_vars->vals[pos];
+		infinite {
+			if (pos == key_count) return NULL;
+
+			if (strcmp(key, stack[s]->local_vars->keys[pos]) == 0) {
+				return stack[s]->local_vars->vals[pos];
+			}
+
+			++pos;
 		}
 
-		++pos;
+		--s;
 	}
+
+	return NULL;
+}
+
+helix_val **hash_table_get_ref(const char *key) {
+	int s = stack_size - 1;
+
+	// check each frame downward
+	while (s >= 0) {
+		int key_count = stack[s]->local_vars->key_count;
+
+		int pos = 0;
+
+		infinite {
+			if (pos == key_count) return NULL;
+
+			if (strcmp(key, stack[s]->local_vars->keys[pos]) == 0) {
+				return &stack[s]->local_vars->vals[pos];
+			}
+
+			++pos;
+		}
+
+		--s;
+	}
+
+	return NULL;
 }
 
 helix_val *init_helix_val(void) {
 	helix_val *val = malloc(sizeof(helix_val));
+
+	if (val == NULL) {
+		HELIX_FATAL("Failed to allocate memory for core value");
+	}
+
 	val->d.val_string = malloc(sizeof(char) * 1);
 	val->d.val_string[0] = '\0';
 
 	return val;
+}
+
+void helix_val_set_type(helix_val *val, int new_type) {
+	// check if string needs free
+	if (val->type == HELIX_VAL_STRING && new_type != HELIX_VAL_STRING) {
+		free(val->d.val_string);
+	}
+
+	val->type = new_type;
 }
 
 char *helix_val_as_string(helix_val *val) {
@@ -116,7 +178,25 @@ char *helix_val_as_string(helix_val *val) {
 	return NULL;
 }
 
+int helix_val_is_true(helix_val *val) {
+	int result;
+
+	if (val->type != HELIX_VAL_BOOL) {
+		if (val->type == HELIX_VAL_STRING) {
+			result = strcmp(val->d.val_string, "") == 0 ? 0 : 1;
+		} else if (val->type == HELIX_VAL_INT) {
+			result = val->d.val_int == 0 ? 0 : 1;
+		} else if (val->type == HELIX_VAL_FLOAT) {
+			result = fabs(val->d.val_float - 0) < 0 ? 0 : 1;
+		}
+	} else {
+		result = val->d.val_bool;
+	}
+
+	return result;
+}
+
 void free_helix_val(helix_val *val) {
-	free(val->d.val_string);
+	if (val->type == HELIX_VAL_STRING) free(val->d.val_string);
 	free(val);
 }

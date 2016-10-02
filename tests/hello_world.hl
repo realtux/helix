@@ -4,10 +4,10 @@
 //}
 
 // call method
-output::print('asdf\n');
+output::print('calling output print\n');
 
 // concat
-output::print('a' . ' ' . 'b' . ' ' . 'c' . '\n');
+output::print('cat1' . ' ' . 'cat2' . ' ' . 'cat3' . '\n');
 
 // assignment
 var name = 'brian';
@@ -17,33 +17,34 @@ var name4 = '';
 
 // handle if
 if name != 'brian' {
-    output::print('its brian, yes\n');
+    output::print('name is not brian\n');
 
     if 'cool' == 'cool' {
         output::print('woah, got it\n');
     }
 } else {
-    output::print('its not brian, no\n');
+    output::print('name is brian, no\n');
 }
 
-output::print('\n\n\n---\n');
-
 if name == name2 {
-    output::print('names match\n');
+    output::print('name == name2\n');
 }
 
 if name != name2 {
-    output::print('names dont match\n');
+    output::print('name != name2\n');
 }
 
 if name {
-    output::print('truthy, yo\n');
+    output::print('name truthy, yo\n');
 }
 
 if !name4 {
-    output::print('falsy, yo\n');
+    output::print('name4 falsy, yo\n');
 }
 
 while name == 'brian' {
-    output::print('looping!!!')
+    output::print('looping!!!\n');
+    var name = 'tim';
 }
+
+output::print('after while\n');

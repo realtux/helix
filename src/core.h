@@ -57,15 +57,18 @@ typedef struct {
 #define EXPAND_ARRAY_TO(var, type, amt) var = realloc(var, sizeof(type) * amt);
 #define SHRINK_ARRAY_TO(var, type, amt) var = realloc(var, sizeof(type) * amt);
 
-void stack_push(stack_frame*);
+void stack_push(stack_frame *);
 helix_val *stack_pop(void);
 void stack_init(void);
 void stack_destroy(void);
 helix_hash_table *hash_table_init(void);
-void hash_table_add(char*, helix_val*);
-helix_val *hash_table_get(const char*);
+void hash_table_add(char*, helix_val *);
+helix_val *hash_table_get(const char *);
+helix_val **hash_table_get_ref(const char *);
 helix_val *init_helix_val(void);
-char *helix_val_as_string(helix_val*);
-void free_helix_val(helix_val*);
+void helix_val_set_type(helix_val *, int);
+char *helix_val_as_string(helix_val *);
+int helix_val_is_true(helix_val *);
+void free_helix_val(helix_val *);
 
 #endif

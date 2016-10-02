@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,93 +36,27 @@ void con_if(void) {
 	eat_space();
 
 	// handle inverse operator
-	int inverse = source[chr] == '!' ? 1 : 0;
+	//int inverse = source[chr] == '!' ? 1 : 0;
 
-	if (inverse) ++chr;
+	//if (inverse) ++chr;
 
-	// get the left hand value
-	helix_val *val_lh = evaluate_expression();
+	// get the final value
+	helix_val *val = evaluate_expression();
 
 	// eat space between the left hand value and operator/brace
 	eat_space();
 
-	int result;
-
-	// check for truthy/falsy evaluation
-	if (source[chr] == '{') {
-		if (val_lh->type == HELIX_VAL_STRING) {
-			result = strcmp(val_lh->d.val_string, "") == 0 ? 0 : 1;
-		} else if (val_lh->type == HELIX_VAL_INT) {
-			result = val_lh->d.val_int == 0 ? 0 : 1;
-		} else if (val_lh->type == HELIX_VAL_FLOAT) {
-			result = val_lh->d.val_float == 0.0 ? 0 : 1;
-		} else if (val_lh->type == HELIX_VAL_BOOL) {
-			result = val_lh->d.val_bool == 0 ? 0 : 1;
-		}
-	} else {
-		int operator;
-
-		if (strncmp(source + chr, "===", 3) == 0) {
-			operator = TOKEN_OPERATOR_SEQ;
-			chr += 3;
-		} else if (strncmp(source + chr, "==", 2) == 0) {
-			operator = TOKEN_OPERATOR_EQ;
-			chr += 2;
-		} else if (strncmp(source + chr, "!==", 3) == 0) {
-			operator = TOKEN_OPERATOR_SNEQ;
-			chr += 3;
-		} else if (strncmp(source + chr, "!=", 2) == 0) {
-			operator = TOKEN_OPERATOR_NEQ;
-			chr += 2;
-		} else {
-			HELIX_FATAL("Strange operator found");
-		}
-
-		eat_space();
-
-		helix_val *val_rh = evaluate_expression();
-
-		eat_space();
-
-		if (source[chr] != '{') {
-			HELIX_PARSE("Expected { after conditional");
-		}
-
-		char *tmp_lh_str;
-		char *tmp_rh_str;
-
-		if (operator == TOKEN_OPERATOR_SEQ) {
-			if (val_lh->type != val_rh->type) result = 0;
-		} else if (operator == TOKEN_OPERATOR_EQ) {
-			tmp_lh_str = helix_val_as_string(val_lh);
-			tmp_rh_str = helix_val_as_string(val_rh);
-
-			result = strcmp(tmp_lh_str, tmp_rh_str) == 0 ? 1 : 0;
-		} else if (operator == TOKEN_OPERATOR_SNEQ) {
-			if (val_lh->type != val_rh->type) result = 0;
-		} else if (operator == TOKEN_OPERATOR_NEQ) {
-			tmp_lh_str = helix_val_as_string(val_lh);
-			tmp_rh_str = helix_val_as_string(val_rh);
-
-			result = strcmp(tmp_lh_str, tmp_rh_str) == 0 ? 0 : 1;
-		}
-
-		free(tmp_lh_str);
-		free(tmp_rh_str);
-	}
+	int result = helix_val_is_true(val);
 
 	// handle inverse
-	if (inverse) {
-		result = result == 0 ? 1 : 0;
-	}
+	//if (inverse) {
+	//	result = result == 0 ? 1 : 0;
+	//}
 
 	if (result) {
 		// lex the true block
 		++chr;
 		lex();
-
-		// push past the rcurly
-		++chr;
 
 		// eat space between rcurly and possible else/elseif
 		eat_space();
@@ -199,12 +134,46 @@ void con_var(void) {
 }
 
 void con_while(void) {
+	if (source[chr] != ' ') {
+		HELIX_PARSE("Expected space after 'which'");
+	}
 
+	eat_space();
+
+	int condition_chr_start = chr;
+	int condition_line_start = line;
+
+	// get the condition value
+	helix_val *val = evaluate_expression();
+
+	int result = helix_val_is_true(val);
+
+	int block_chr_start = chr;
+
+	while (result) {
+		// push into the expression
+		++chr;
+
+		// lex the block
+		lex();
+
+		// reset the cursor to the beginning of the condition
+		chr = condition_chr_start;
+		line = condition_line_start;
+
+		// ascertain the new condition value
+		free_helix_val(val);
+		val = evaluate_expression();
+		result = helix_val_is_true(val);
+	}
+
+	chr = block_chr_start;
+	eat_braced_block();
 }
 
 void handle_construct(const char *construct) {
 	if (strcmp(construct, "out") == 0) {
-		chr = chr + 3;
+		chr += 3;
 		con_out();
 	} else if (strcmp(construct, "if") == 0) {
 		chr += 2;
@@ -217,7 +186,7 @@ void handle_construct(const char *construct) {
 		con_var();
 	} else if (strcmp(construct, "while") == 0) {
 		chr += 5;
-		con_var();
+		con_while();
 	} else {
 		HELIX_FATAL("Unknown keyword");
 	}
@@ -227,7 +196,7 @@ helix_val *evaluate_expression(void) {
 	int match;
 	struct slre_cap cap[1];
 
-	helix_val *val = init_helix_val();
+	helix_val *lh_value = init_helix_val();
 
 	// space
 	if (source[chr] == ' ') {
@@ -236,7 +205,7 @@ helix_val *evaluate_expression(void) {
 
 	// handle string
 	if (source[chr] == '\'') {
-		val->type = HELIX_VAL_STRING;
+		helix_val_set_type(lh_value, HELIX_VAL_STRING);
 
 		++chr;
 
@@ -256,17 +225,17 @@ helix_val *evaluate_expression(void) {
 			if (source[chr] == '\\') {
 				// peek forward
 				if (source[chr + 1] == 'n') {
-					EXPAND_STRING_BY(val->d.val_string, char, 1);
-					strcat(val->d.val_string, "\n");
+					EXPAND_STRING_BY(lh_value->d.val_string, char, 1);
+					strcat(lh_value->d.val_string, "\n");
 					++chr;
 					++chr;
 					continue;
 				}
 			}
 
-			EXPAND_STRING_BY(val->d.val_string, char, 1);
+			EXPAND_STRING_BY(lh_value->d.val_string, char, 1);
 
-			strncat(val->d.val_string, source + chr, 1);
+			strncat(lh_value->d.val_string, source + chr, 1);
 			++chr;
 		}
 	}
@@ -316,7 +285,21 @@ helix_val *evaluate_expression(void) {
 		strncpy(variable_name, cap->ptr, cap->len);
 		variable_name[cap->len] = '\0';
 
-		val = hash_table_get(variable_name);
+		helix_val *lookup_val = hash_table_get(variable_name);
+
+		helix_val_set_type(lh_value, lookup_val->type);
+
+		if (lookup_val->type == HELIX_VAL_STRING) {
+			lh_value->d.val_string =
+				realloc(lh_value->d.val_string, sizeof(char) * (strlen(lh_value->d.val_string) + 1));
+			strcpy(lh_value->d.val_string, lookup_val->d.val_string);
+		} else if (lookup_val->type == HELIX_VAL_INT) {
+			lh_value->d.val_int = lookup_val->d.val_int;
+		} else if (lookup_val->type == HELIX_VAL_FLOAT) {
+			lh_value->d.val_float = lookup_val->d.val_float;
+		} else if (lookup_val->type == HELIX_VAL_BOOL) {
+			lh_value->d.val_bool = lookup_val->d.val_bool;
+		}
 
 		// push past variable name
 		chr += strlen(variable_name);
@@ -336,12 +319,66 @@ helix_val *evaluate_expression(void) {
 		// combine strings
 		size_t length = strlen(concatenated->d.val_string);
 
-		EXPAND_STRING_BY(val->d.val_string, char, length);
+		EXPAND_STRING_BY(lh_value->d.val_string, char, length);
 
-		strcat(val->d.val_string, concatenated->d.val_string);
+		strcat(lh_value->d.val_string, concatenated->d.val_string);
 
 		// discard the concatenated stuff
 		free_helix_val(concatenated);
+	}
+
+	// comparison
+	eat_space();
+	int operator = 0;
+
+	if (strncmp(source + chr, "===", 3) == 0) {
+		operator = TOKEN_OPERATOR_SEQ;
+		chr += 3;
+	} else if (strncmp(source + chr, "==", 2) == 0) {
+		operator = TOKEN_OPERATOR_EQ;
+		chr += 2;
+	} else if (strncmp(source + chr, "!==", 3) == 0) {
+		operator = TOKEN_OPERATOR_SNEQ;
+		chr += 3;
+	} else if (strncmp(source + chr, "!=", 2) == 0) {
+		operator = TOKEN_OPERATOR_NEQ;
+		chr += 2;
+	}
+
+	if (operator != 0) {
+		int result;
+
+		// a comparison means the result is automatically a bool
+		eat_space();
+
+		helix_val *rh_value = evaluate_expression();
+
+		char *tmp_lh_str;
+		char *tmp_rh_str;
+
+		if (operator == TOKEN_OPERATOR_SEQ) {
+			if (lh_value->type != rh_value->type) result = 0;
+		} else if (operator == TOKEN_OPERATOR_EQ) {
+			tmp_lh_str = helix_val_as_string(lh_value);
+			tmp_rh_str = helix_val_as_string(rh_value);
+
+			result = strcmp(tmp_lh_str, tmp_rh_str) == 0 ? 1 : 0;
+		} else if (operator == TOKEN_OPERATOR_SNEQ) {
+			if (lh_value->type != rh_value->type) result = 0;
+		} else if (operator == TOKEN_OPERATOR_NEQ) {
+			tmp_lh_str = helix_val_as_string(lh_value);
+			tmp_rh_str = helix_val_as_string(rh_value);
+
+			result = strcmp(tmp_lh_str, tmp_rh_str) == 0 ? 0 : 1;
+		}
+
+		free(tmp_lh_str);
+		free(tmp_rh_str);
+
+		free_helix_val(rh_value);
+
+		helix_val_set_type(lh_value, HELIX_VAL_BOOL);
+		lh_value->d.val_bool = result;
 	}
 
 	// newline means missing semi colon
@@ -349,5 +386,5 @@ helix_val *evaluate_expression(void) {
 		HELIX_PARSE("Unterminated expression");
 	}
 
-	return val;
+	return lh_value;
 }

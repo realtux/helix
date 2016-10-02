@@ -14,8 +14,13 @@ extern char *source;
 
 void eat_space(void) {
 	infinite {
-		if (source[chr] == ' ' ||
-			source[chr] == '\t') {
+		if (source[chr] == ' ' || source[chr] == '\t') {
+			++chr;
+			continue;
+		}
+
+		if (source[chr] == '\n') {
+			++line;
 			++chr;
 			continue;
 		}
