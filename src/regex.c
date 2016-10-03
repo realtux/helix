@@ -46,6 +46,8 @@ char **pcre_match(const char *regex, const char *str, int *num_matches) {
         return NULL;
     }
 
+    pcre_free(re);
+
     return matches;
 }
 
