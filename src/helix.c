@@ -14,6 +14,7 @@ char *source;
 
 int line = 1;
 int chr = 0;
+long source_size;
 
 int stack_size = 1;
 stack_frame **stack;
@@ -48,15 +49,13 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    long file_size;
-
     // get the source length
     fseek(file, 0L, SEEK_END);
-    file_size = ftell(file);
+    source_size = ftell(file);
     rewind(file);
 
     // store the source
-    source = malloc(file_size + 1);
+    source = calloc(source_size + 1, sizeof(char));
 
     if (source == NULL) {
         HELIX_CORE("Allocation failed for source file");
@@ -64,8 +63,10 @@ int main(int argc, char **argv) {
     }
 
     // transfer file into source and close
-    size_t transferred = fread(source, file_size, 1, file);
+    size_t transferred = fread(source, source_size, 1, file);
     fclose(file);
+
+    source[source_size - 1] = '\0';
 
     if (transferred == 0) {
         HELIX_WARNING("File empty");

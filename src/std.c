@@ -39,4 +39,5 @@ void handle_std(const char *namespace) {
 
 	// rparen
 	++chr;
+
 }

@@ -1,8 +1,8 @@
 CC=gcc
-CFLAGS=-std=c99 \
+CFLAGS=-O3 -std=c99 \
 	-Wall -Wextra -Wundef -Wfloat-equal -Wpointer-arith -Wcast-align \
 	-Wstrict-prototypes -Wno-missing-field-initializers -Warray-bounds \
-	-pedantic -fstrict-aliasing
+	-pedantic -fstrict-aliasing -g
 LINKS=-lpcre
 INCLUDES=-I. -I./src
 
@@ -10,12 +10,12 @@ LIB_OBJS =
 LIB_OBJS += build/objs/constructs.o
 LIB_OBJS += build/objs/core.o
 LIB_OBJS += build/objs/error.o
+LIB_OBJS += build/objs/functions.o
 LIB_OBJS += build/objs/helix.o
 LIB_OBJS += build/objs/lexer.o
 LIB_OBJS += build/objs/regex.o
 LIB_OBJS += build/objs/std.o
 LIB_OBJS += build/objs/std/output.o
-LIB_OBJS += build/objs/tpv/slre.o
 
 EXEC=helix
 

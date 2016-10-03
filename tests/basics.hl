@@ -49,7 +49,8 @@ test = 'yes'
 test2 = test
 
 if test2 == 'yes' {
-    output::print('i win')
+    output::print('i win\n')
 }
 
-output::print(asdf);
+output::print(name)
+output::print(name)

@@ -9,5 +9,6 @@
 
 void stack_trace(void);
 void helix_log_error(const char *, const char *, int, const char *, int);
+char *get_timestamp(void);
 
 #endif

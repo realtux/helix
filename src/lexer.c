@@ -5,12 +5,13 @@
 #include "core.h"
 #include "constructs.h"
 #include "error.h"
-#include "tpv/slre.h"
+#include "regex.h"
 
 extern int line;
 extern int chr;
 
 extern char *source;
+extern long source_size;
 
 void eat_space(void) {
 	infinite {
@@ -58,44 +59,44 @@ void eat_braced_block(void) {
 		}
 
 		if (source[chr] == '\n') {
+			++chr;
 			++line;
+			continue;
 		}
 
 		// check for end declaration
 		if (source[chr] == '}' && nested_curly == 0) {
+			++chr;
 			break;
 		}
 
 		// check for new opening lcurly
 		if (source[chr] == '{') {
+			++chr;
 			++nested_curly;
+			continue;
 		}
 
 		// check for end nested closing rcurly
 		if (source[chr] == '}') {
+			++chr;
 			--nested_curly;
+			continue;
 		}
 
 		++chr;
 	}
-
-	++chr;
 }
 
 void lex(void) {
-	int match;
-	struct slre_cap cap[1];
+	int num_matches = 0;
+	int match_len;
+	char **matches;
 
 	infinite {
 		// eat space
 		if (source[chr] == ' ' || source[chr] == '\t') {
 			eat_space();
-			continue;
-		}
-
-		// eat semi colon
-		if (source[chr] == ';') {
-			++chr;
 			continue;
 		}
 
@@ -113,35 +114,35 @@ void lex(void) {
 		}
 
 		// reserved keywords
-		match = slre_match(LEXER_RE_KEYWORDS, source + chr, 32, cap, 1, 0);
+		matches = pcre_match(LEXER_RE_KEYWORDS, source + chr, &num_matches);
+		if (num_matches > 0) {
+			match_len = strlen(matches[1]);
 
-		if (match >= 0) {
 			// hold the next keyword
-			char *keyword = malloc(sizeof(char) * (cap->len + 1));
+			char *keyword = malloc(sizeof(char) * (match_len + 1));
 
 			// copy it in
-			strncpy(keyword, cap->ptr, cap->len);
-			keyword[cap->len] = '\0';
+			strncpy(keyword, matches[1], match_len);
+			keyword[match_len] = '\0';
 
 			handle_construct(keyword);
 
 			free(keyword);
-
 			continue;
 		}
 
 		// assignment
-		match = slre_match(LEXER_RE_ASSIGNMENT, source + chr, 32, cap, 1, 0);
-
-		if (match >= 0) {
+		matches = pcre_match(LEXER_RE_ASSIGNMENT, source + chr, &num_matches);
+		if (num_matches > 0) {
+			free_pcre_matches(matches, num_matches);
 			con_var();
 			continue;
 		}
 
 		// std call
-		match = slre_match(LEXER_RE_STD, source + chr, 32, cap, 1, 0);
-
-		if (match >= 0) {
+		matches = pcre_match(LEXER_RE_STD, source + chr, &num_matches);
+		if (num_matches > 0) {
+			free_pcre_matches(matches, num_matches);
 			evaluate_expression();
 			continue;
 		}
@@ -152,9 +153,10 @@ void lex(void) {
 			continue;
 		}
 
-		// done with the source file
-		if (source[chr] == '\0') break;
-
-		HELIX_PARSE("Syntax error");
+		if (chr < source_size-1) {
+			HELIX_PARSE("Syntax error");
+		} else {
+			break;
+		}
 	}
 }

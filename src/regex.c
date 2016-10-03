@@ -20,7 +20,7 @@ char **pcre_match(const char *regex, const char *str, int *num_matches) {
     char **matches = malloc(sizeof(char *) * 1);
 
     while (offset < len && (rc = pcre_exec(re, 0, str, len, offset, 0,
-                                    ovector, sizeof(ovector))) >= 0) {
+        ovector, sizeof(ovector))) >= 0) {
 
        for(int i = 0; i < rc; ++i) {
            int cap_len = ovector[2*i+1] - ovector[2*i];

@@ -1,27 +1,19 @@
-output::print('yes')
-
-fn func_g() {
-    return 'yes'
-}
-
-fn func_f() {
-    return func_g()
-}
-
-fn func_e() {
-    return func_f()
-}
-
-fn func_d() {
-    return func_e()
-}
-
-fn func_c() {
-    return func_d()
-}
+outer_scope = 'here'
 
 fn func_b() {
-    return func_c()
+    //asd
+    output::print('asd\n')
+    a='a'
+
+    output::print('printing ' . outer_scope . ' from inner scope\n')
+
+    inner_scope = 'gone soon\n'
+
+    return a
+
+
+    output::printf('not here')
+    b='no assigning'
 }
 
 fn func_a() {
@@ -29,3 +21,6 @@ fn func_a() {
 }
 
 output::print(func_a())
+
+// trying to output locally defined varialbe
+output::print(inner_scope)

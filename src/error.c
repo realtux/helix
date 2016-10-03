@@ -12,17 +12,17 @@ extern stack_frame **stack;
 
 char *get_timestamp(void) {
 	time_t t = time(NULL);
-	struct tm tm = *localtime(&t);
+	struct tm *tm = localtime(&t);
 
-	char *stamp = malloc(sizeof(char) * 20);
+	char *stamp = malloc(sizeof(char) * 22);
 
 	sprintf(stamp, "%d-%02d-%02d %02d:%02d:%02d",
-		tm.tm_year + 1900,
-		tm.tm_mon + 1,
-		tm.tm_mday,
-		tm.tm_hour,
-		tm.tm_min,
-		tm.tm_sec);
+		tm->tm_year + 1900,
+		tm->tm_mon + 1,
+		tm->tm_mday,
+		tm->tm_hour,
+		tm->tm_min,
+		tm->tm_sec);
 
 	return stamp;
 }
@@ -32,7 +32,7 @@ void stack_trace(void) {
 
 	if (log == NULL) return;
 
-	char *stamp = get_timestamp();
+	char *stamp = "time";//get_timestamp();
 
 	fprintf(log, "%s: Stack Trace:\n", stamp);
 
@@ -51,7 +51,7 @@ void stack_trace(void) {
 	}
 
 	fclose(log);
-	free(stamp);
+	//free(stamp);
 }
 
 void helix_log_error(const char *type, const char *msg, int line,
@@ -59,14 +59,17 @@ void helix_log_error(const char *type, const char *msg, int line,
 
     FILE *log = fopen("/var/log/helix.log", "a");
 
-	char *stamp = get_timestamp();
+	char *stamp = "time";//get_timestamp();
 
-    if (log == NULL) return;
+    if (log == NULL) {
+		//free(stamp);
+		return;
+	}
 
     fprintf(log, "%s: Helix %s: %s at line %d in %s\n", stamp, type, msg, line, file);
 
 	fclose(log);
-	free(stamp);
+	//free(stamp);
 
 	if (dump_stack) stack_trace();
 

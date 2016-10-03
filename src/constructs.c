@@ -6,10 +6,10 @@
 #include "core.h"
 #include "constructs.h"
 #include "error.h"
+#include "functions.h"
 #include "lexer.h"
 #include "regex.h"
 #include "std.h"
-#include "tpv/slre.h"
 
 extern int line;
 extern int chr;
@@ -89,22 +89,27 @@ void con_if(void) {
 	}
 }
 
-void con_fn(void) {
+void con_fn_def(void) {
+	int num_matches;
+	int match_len;
+
 	eat_space();
 
-	int match;
-	struct slre_cap cap[1];
+	char **matches = pcre_match(LEXER_RE_FN, source + chr, &num_matches);
 
-	match = slre_match("^([A-Za-z0-9_]+)\\s*?\\(", source + chr, 32, cap, 1, 0);
+	if (num_matches > 0) {
+		match_len = strlen(matches[1]);
 
-	if (match >= 0) {
 		// get the function name
-		char *function_name = malloc(sizeof(char) * (cap->len + 1));
+		char *function_name = malloc(sizeof(char) * (match_len + 1));
 
 		// copy it in
-		strncpy(function_name, cap->ptr, cap->len);
-		function_name[cap->len] = '\0';
+		strcpy(function_name, matches[1]);
+		function_name[match_len] = '\0';
 
+		free_pcre_matches(matches, num_matches);
+
+		int function_line;
 		int function_start;
 
 		chr += strlen(function_name);
@@ -120,21 +125,32 @@ void con_fn(void) {
 		// eat space between args and lcurly
 		eat_space();
 
-		// push past lcurly
-		++chr;
+		if (source[chr] != '{') {
+			HELIX_PARSE("Expecting '{' after function signature");
+		}
 
-		function_start = chr;
+		function_line = line;
+		function_start = chr + 1;
 
+		// push past the encloding function block
 		eat_braced_block();
 
+		char *line_pos = malloc(sizeof(char) * 64);
+		line_pos[0] = '\0';
 
+		sprintf(line_pos, "%d:%d", function_line, function_start);
+
+		line_pos = realloc(line_pos, sizeof(char) * (strlen(line_pos) + 1));
+
+		// store the function name and start pos
+		hash_table_add_fn(function_name, line_pos);
 	}
 }
 
 void con_var(void) {
 	eat_space();
 
-	char *var = malloc(1);
+	char *var = malloc(sizeof(char) * 1);
 	var[0] = '\0';
 
 	infinite {
@@ -170,7 +186,7 @@ void con_var(void) {
 
 void con_while(void) {
 	if (source[chr] != ' ') {
-		HELIX_PARSE("Expected space after 'which'");
+		HELIX_PARSE("Expected space after 'while'");
 	}
 
 	eat_space();
@@ -206,6 +222,23 @@ void con_while(void) {
 	eat_braced_block();
 }
 
+void con_return(void) {
+	eat_space();
+
+	// get the return value
+	helix_val *val = evaluate_expression();
+
+	// add it to the stack frame beneath current
+	stack[stack_size - 2]->return_val = val;
+	stack[stack_size - 2]->has_returned = 1;
+
+	// reset cursor
+	line = stack[stack_size - 1]->line_pos;
+	chr = stack[stack_size - 1]->char_pos;
+
+	stack_pop();
+}
+
 void handle_construct(const char *construct) {
 	if (strcmp(construct, "out") == 0) {
 		chr += 3;
@@ -215,10 +248,13 @@ void handle_construct(const char *construct) {
 		con_if();
 	} else if (strcmp(construct, "fn") == 0) {
 		chr += 2;
-		con_fn();
+		con_fn_def();
 	} else if (strcmp(construct, "while") == 0) {
 		chr += 5;
 		con_while();
+	} else if (strcmp(construct, "return") == 0) {
+		chr += 6;
+		con_return();
 	} else {
 		HELIX_FATAL("Unknown keyword");
 	}
@@ -227,9 +263,7 @@ void handle_construct(const char *construct) {
 helix_val *evaluate_expression(void) {
 	int num_matches = 0;
 	int match_len;
-
-	int match;//remove
-	struct slre_cap cap[1];//remove
+	char **matches;
 
 	helix_val *lh_value = init_helix_val();
 
@@ -240,7 +274,8 @@ helix_val *evaluate_expression(void) {
 
 	// handle string
 	if (source[chr] == '\'') {
-		helix_val_set_type(lh_value, HELIX_VAL_STRING);
+		lh_value->type = HELIX_VAL_STRING;
+		//helix_val_set_type(lh_value, HELIX_VAL_STRING);
 
 		++chr;
 
@@ -276,26 +311,14 @@ helix_val *evaluate_expression(void) {
 	}
 
 	// handle integer
-	match = slre_match(LEXER_RE_INTEGERS, source + chr, 32, cap, 1, 0);
+	//matches = pcre_match(LEXER_RE_INTEGERS, source + chr, &num_matches);
 
-	if (match >= 0) {
-		infinite {
-			// fail on newline
-			if (source[chr] == '\n' || source[chr] == '\0') {
-				HELIX_PARSE("Unterminated expression");
-			}
-
-			match = slre_match("[^1-9]", source + chr, 32, cap, 1, 0);
-
-			if (match >= 0) break;
-
-			++chr;
-		}
-	}
+	//if (num_matches > 0) {
+	//	free_pcre_matches(matches, num_matches);
+	//}
 
 	// std call
-    char **matches = pcre_match(LEXER_RE_STD, source + chr, &num_matches);
-
+    matches = pcre_match(LEXER_RE_STD, source + chr, &num_matches);
 	if (num_matches > 0) {
 		match_len = strlen(matches[1]);
 
@@ -312,30 +335,50 @@ helix_val *evaluate_expression(void) {
 		free_pcre_matches(matches, num_matches);
 	}
 
-	// variable
-	match = slre_match(LEXER_RE_VARIABLES, source + chr, 32, cap, 1, 0);
+	// user function call
+	matches = pcre_match(LEXER_RE_FN, source + chr, &num_matches);
+	if (num_matches > 0) {
+		match_len = strlen(matches[1]);
 
-	if (match >= 0) {
-		// get the variable name
-		char *variable_name = malloc(sizeof(char) * (cap->len + 1));
+		// get the fn name
+		char *fn = malloc(sizeof(char) * (match_len + 1));
 
 		// copy it in
-		strncpy(variable_name, cap->ptr, cap->len);
-		variable_name[cap->len] = '\0';
+		strncpy(fn, matches[1], match_len);
+		fn[match_len] = '\0';
+
+		handle_fn_call(fn);
+
+		// pass off return value
+		lh_value = stack[stack_size - 1]->return_val;
+
+		free(fn);
+		free_pcre_matches(matches, num_matches);
+	}
+
+	// variable
+	matches = pcre_match(LEXER_RE_VARIABLES, source + chr, &num_matches);
+	if (num_matches > 0) {
+		match_len = strlen(matches[1]);
+
+		// get the variable name
+		char *variable_name = malloc(sizeof(char) * (match_len + 1));
+
+		// copy it in
+		strncpy(variable_name, matches[1], match_len);
+		variable_name[match_len] = '\0';
 
 		helix_val *lookup_val = hash_table_get(variable_name);
 
 		if (lookup_val == NULL) {
-			char error[1000];
-			sprintf(error, "Variable '%s' has not been defined", variable_name);
-			HELIX_FATAL(error);
+			HELIX_FATAL("Undefined variable");
 		}
 
 		helix_val_set_type(lh_value, lookup_val->type);
 
 		if (lookup_val->type == HELIX_VAL_STRING) {
 			lh_value->d.val_string =
-				realloc(lh_value->d.val_string, sizeof(char) * (strlen(lh_value->d.val_string) + 1));
+				realloc(lh_value->d.val_string, sizeof(char) * (strlen(lookup_val->d.val_string) + 1));
 			strcpy(lh_value->d.val_string, lookup_val->d.val_string);
 		} else if (lookup_val->type == HELIX_VAL_INT) {
 			lh_value->d.val_int = lookup_val->d.val_int;
@@ -351,6 +394,7 @@ helix_val *evaluate_expression(void) {
 
 		free(variable_name);
 	}
+
 
 	// concatenation?
 	eat_space();
