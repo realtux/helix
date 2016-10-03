@@ -16,6 +16,7 @@ LIB_OBJS += build/objs/lexer.o
 LIB_OBJS += build/objs/regex.o
 LIB_OBJS += build/objs/std.o
 LIB_OBJS += build/objs/std/output.o
+LIB_OBJS += build/objs/std/string.o
 
 EXEC=helix
 

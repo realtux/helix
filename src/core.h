@@ -8,7 +8,8 @@
 
 #define infinite for(;;)
 
-#define LEXER_RE_KEYWORDS "^(out|if|fn|while|for|return)\\s"
+#define LEXER_RE_KEYWORDS "^(out|if|fn|while|for)\\s"
+#define LEXER_RE_RETURN "^return\\s"
 #define LEXER_RE_ASSIGNMENT "^([a-zA-Z0-9_]+)\\s*?="
 #define LEXER_RE_INTEGERS "^([0-9]+)"
 #define LEXER_RE_STD "^([a-zA-Z_0-9]+::[a-zA-Z_0-9]+)\\s*?\\("
@@ -20,7 +21,8 @@
 #define HELIX_VAL_FLOAT 2
 #define HELIX_VAL_STRING 3
 #define HELIX_VAL_BOOL 4
-#define HELIX_VAL_DOUBLE 4
+#define HELIX_VAL_DOUBLE 5
+#define HELIX_VAL_FUNCTION 6
 
 #define TOKEN_OPERATOR_SEQ 1 // ===
 #define TOKEN_OPERATOR_EQ 2 // ==
@@ -34,12 +36,12 @@
 typedef struct {
     int type;
     union {
-        int val_int;
+        long long val_int;
         double val_double;
         float val_float;
         char *val_string;
         int val_bool;
-        void *something;
+        void *function;
     } d;
 } helix_val;
 

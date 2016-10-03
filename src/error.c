@@ -6,9 +6,14 @@
 #include "core.h"
 
 extern int line;
+extern int chr;
+
+extern char *source;
 
 extern int stack_size;
 extern stack_frame **stack;
+
+extern int env_debug;
 
 char *get_timestamp(void) {
 	time_t t = time(NULL);
@@ -73,7 +78,26 @@ void helix_log_error(const char *type, const char *msg, int line,
 
 	if (dump_stack) stack_trace();
 
-	if (strcmp(type, "Parse") == 0) exit(EXIT_FAILURE);
-	if (strcmp(type, "Fatal") == 0) exit(EXIT_FAILURE);
-	if (strcmp(type, "Core") == 0) exit(EXIT_FAILURE);
+	if (strcmp(type, "Parse") == 0) goto blackhole;
+	if (strcmp(type, "Fatal") == 0) goto blackhole;
+	if (strcmp(type, "Core") == 0) goto blackhole;
+
+	if (1==2) {
+		blackhole:
+		// clean up
+		stack_destroy();
+		free(source);
+
+		// final debugging output, if any
+		if (env_debug) {
+			// execution details
+			printf("\n---->\n");
+			printf("Lines Read: %d\n", line);
+			printf("---->\n");
+		}
+
+		// always
+		printf("\n");
+		exit(EXIT_FAILURE);
+	}
 }

@@ -32,6 +32,13 @@ void stack_init(void) {
 
 void stack_push(stack_frame *frame) {
 	++stack_size;
+
+	// check for max stack depth
+	if (stack_size > 50) {
+		--stack_size;
+		HELIX_CORE("Max stack frame count of 50 reached");
+	}
+
 	stack = realloc(stack, sizeof(stack_frame *) * stack_size);
 	stack[stack_size - 1] = frame;
 }
@@ -247,7 +254,7 @@ char *helix_val_as_string(helix_val *val) {
 	} else if (val->type == HELIX_VAL_INT) {
 		// convert the string from int
 		char tmp[100];
-		sprintf(tmp, "%d", val->d.val_int);
+		sprintf(tmp, "%lld", val->d.val_int);
 
 		// copy into final
 		final = malloc(sizeof(char) * (strlen(tmp) + 1));

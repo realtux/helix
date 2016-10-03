@@ -25,7 +25,7 @@ void con_out(void) {
 	if (val->type == HELIX_VAL_STRING) {
 		printf("%s", val->d.val_string);
 	} else if (val->type == HELIX_VAL_INT) {
-		printf("%d", val->d.val_int);
+		printf("%lld", val->d.val_int);
 	} else if (val->type == HELIX_VAL_FLOAT) {
 		printf("%f", val->d.val_float);
 	} else if (val->type == HELIX_VAL_BOOL) {
@@ -272,10 +272,15 @@ helix_val *evaluate_expression(void) {
 		eat_space();
 	}
 
+	// newline
+	if (source[chr] == '\n') {
+		++chr;
+		++line;
+	}
+
 	// handle string
 	if (source[chr] == '\'') {
-		lh_value->type = HELIX_VAL_STRING;
-		//helix_val_set_type(lh_value, HELIX_VAL_STRING);
+		helix_val_set_type(lh_value, HELIX_VAL_STRING);
 
 		++chr;
 
@@ -311,11 +316,17 @@ helix_val *evaluate_expression(void) {
 	}
 
 	// handle integer
-	//matches = pcre_match(LEXER_RE_INTEGERS, source + chr, &num_matches);
+	matches = pcre_match(LEXER_RE_INTEGERS, source + chr, &num_matches);
+	if (num_matches > 0) {
+		helix_val_set_type(lh_value, HELIX_VAL_INT);
 
-	//if (num_matches > 0) {
-	//	free_pcre_matches(matches, num_matches);
-	//}
+		long long integer = atoi(matches[1]);
+		lh_value->d.val_int = integer;
+
+		chr += strlen(matches[1]);
+
+		free_pcre_matches(matches, num_matches);
+	}
 
 	// std call
     matches = pcre_match(LEXER_RE_STD, source + chr, &num_matches);
@@ -395,7 +406,6 @@ helix_val *evaluate_expression(void) {
 		free(variable_name);
 	}
 
-
 	// concatenation?
 	eat_space();
 	if (source[chr] == '.') {
@@ -413,6 +423,70 @@ helix_val *evaluate_expression(void) {
 
 		// discard the concatenated stuff
 		free_helix_val(concatenated);
+	}
+
+	// addition
+	eat_space();
+	if (source[chr] == '+') {
+		++chr;
+
+		// get whatever comes next
+		helix_val *added_val = evaluate_expression();
+
+		if (added_val->type == HELIX_VAL_INT) {
+			lh_value->d.val_int += added_val->d.val_int;
+		}
+
+		// discard the added stuff
+		free_helix_val(added_val);
+	}
+
+	// subtraction
+	eat_space();
+	if (source[chr] == '-') {
+		++chr;
+
+		// get whatever comes next
+		helix_val *subtracted_val = evaluate_expression();
+
+		if (subtracted_val->type == HELIX_VAL_INT) {
+			lh_value->d.val_int -= subtracted_val->d.val_int;
+		}
+
+		// discard the added stuff
+		free_helix_val(subtracted_val);
+	}
+
+	// multiplication
+	eat_space();
+	if (source[chr] == '*') {
+		++chr;
+
+		// get whatever comes next
+		helix_val *multiplied_val = evaluate_expression();
+
+		if (multiplied_val->type == HELIX_VAL_INT) {
+			lh_value->d.val_int *= multiplied_val->d.val_int;
+		}
+
+		// discard the added stuff
+		free_helix_val(multiplied_val);
+	}
+
+	// division
+	eat_space();
+	if (source[chr] == '/') {
+		++chr;
+
+		// get whatever comes next
+		helix_val *divided_val = evaluate_expression();
+
+		if (divided_val->type == HELIX_VAL_INT) {
+			lh_value->d.val_int /= divided_val->d.val_int;
+		}
+
+		// discard the added stuff
+		free_helix_val(divided_val);
 	}
 
 	// comparison

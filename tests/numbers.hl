@@ -1,0 +1,18 @@
+a = 1
+b = 2
+
+// simple
+output::print(3 + 2)
+
+output::print('\nseparator\n')
+
+// by var
+output::print(a     +b)
+
+output::print('\nseparator\n')
+
+// complex (right to left)
+output::print(1+4*2+9)
+
+// divide by zero!!!
+//output::print(9/0)

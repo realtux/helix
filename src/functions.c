@@ -38,7 +38,8 @@ void handle_fn_call(const char *function_name) {
 
     // add a new stack frame
     stack_frame *frame = malloc(sizeof(stack_frame));
-	frame->char_pos = chr + strlen(function_name) + 3; // fix
+	frame->char_pos = chr + strlen(function_name) + 2; // fix
+
 	frame->line_pos = line;
 	frame->name = malloc(sizeof(char) * (strlen(function_name) + 1));
 	strcpy(frame->name, function_name);

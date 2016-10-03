@@ -1,26 +1,15 @@
-outer_scope = 'here'
-
 fn func_b() {
-    //asd
-    output::print('asd\n')
-    a='a'
-
-    output::print('printing ' . outer_scope . ' from inner scope\n')
-
-    inner_scope = 'gone soon\n'
-
-    return a
-
-
-    output::printf('not here')
-    b='no assigning'
+    a='a' . 'b'
+    return '--' . a . 'v'
 }
 
+fn mid() {
+    output::print('something\n')
+}
 fn func_a() {
-    return func_b()
+    mid()
+    return func_b() . 'e'
 }
 
-output::print(func_a())
-
-// trying to output locally defined varialbe
-output::print(inner_scope)
+output::print(func_a() . 'z' . '\n')
+output::print('do stuff')

@@ -20,12 +20,6 @@ void eat_space(void) {
 			continue;
 		}
 
-		if (source[chr] == '\n') {
-			++line;
-			++chr;
-			continue;
-		}
-
 		break;
 	}
 }
@@ -113,6 +107,15 @@ void lex(void) {
 			return;
 		}
 
+		// returning
+		matches = pcre_match(LEXER_RE_RETURN, source + chr, &num_matches);
+		if (num_matches > 0) {
+			chr += 6;
+			free_pcre_matches(matches, num_matches);
+			con_return();
+			return;
+		}
+
 		// reserved keywords
 		matches = pcre_match(LEXER_RE_KEYWORDS, source + chr, &num_matches);
 		if (num_matches > 0) {
@@ -141,6 +144,14 @@ void lex(void) {
 
 		// std call
 		matches = pcre_match(LEXER_RE_STD, source + chr, &num_matches);
+		if (num_matches > 0) {
+			free_pcre_matches(matches, num_matches);
+			evaluate_expression();
+			continue;
+		}
+
+		// user function call
+		matches = pcre_match(LEXER_RE_FN, source + chr, &num_matches);
 		if (num_matches > 0) {
 			free_pcre_matches(matches, num_matches);
 			evaluate_expression();
