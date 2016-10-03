@@ -4,12 +4,28 @@ helix is a fun and mostly useless toy language written in c. helix is based on a
 ##### what does helix look like?
 ```go
 // single comment
-output::print('hello world');
+output::print('hello world')
+
+// function declaration
+fn say_hi() {
+    output::print('hi :)')
+}
+
+// variables
+name = 'brian'
+
+// conditionals
+if name == 'brian' {
+    output::print('hi brian')
+}
+
+// math
+output::print('2 + 2 =')
+output::print(2+2);
 ```
 
 ##### installation
 ```
-# you know the drill
 git clone https://github.com/ebrian/helix
 cd helix
 make
@@ -25,3 +41,9 @@ helix your_file.hl
 
 #### 0.0.1-alpha
 - language boilerplate
+- functions
+- variables
+- simple math
+- concatenation
+- return values, early return, implicit return
+- runaway recursion checking
