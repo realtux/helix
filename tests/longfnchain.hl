@@ -1,0 +1,29 @@
+fn g() {
+    return 'asd'
+}
+
+fn f() {
+    return g()
+}
+
+fn e() {
+    return f()
+}
+
+fn d() {
+    return e()
+}
+
+fn c() {
+    return d()
+}
+
+fn b() {
+    return c()
+}
+
+fn a() {
+    return b()
+}
+
+output::print(a())

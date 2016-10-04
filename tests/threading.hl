@@ -1,0 +1,17 @@
+thread::new(|| => {
+    output::print("im in a new thread :)\n")
+})
+
+thread::new(|| => {
+    output::print("so am i\n")
+})
+
+thread::new(|| => {
+    output::print("and also me\n")
+})
+
+thread::new(|| => {
+    output::print("and me too\n")
+})
+
+thread::wait_all()

@@ -8,6 +8,7 @@
 #include "lexer.h"
 
 #include "std/output.h"
+#include "std/thread.h"
 
 extern int line;
 extern int chr;
@@ -23,6 +24,8 @@ void handle_std(const char *namespace) {
 
 	if (strcmp(namespace, "output::print") == 0) {
 		output_print(evaluate_expression());
+	} else if (strcmp(namespace, "thread::new") == 0) {
+		thread_new(evaluate_expression());
 	} else {
 		char *suffix = " is not a function";
 		char *message = malloc(sizeof(char) * (strlen(namespace) + strlen(suffix) + 1));
