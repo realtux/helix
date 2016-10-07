@@ -14,4 +14,16 @@ thread::new(|| => {
     output::print("and me too\n")
 })
 
+thread::new(|| => {
+    output::print("and me too\n")
+})
+
+thread::new(|| => {
+    output::print("and me too\n")
+})
+
+thread::new(|| => {
+    output::print("and me too\n")
+})
+
 thread::wait_all()

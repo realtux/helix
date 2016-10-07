@@ -41,7 +41,7 @@ typedef struct {
         float val_float;
         char *val_string;
         int val_bool;
-        void *function;
+        int val_fn_s;
     } d;
 } helix_val;
 
@@ -63,6 +63,8 @@ typedef struct {
     int line_pos;
     helix_hash_table *local_vars;
     helix_hash_table_fn *local_fns;
+    int arg_count;
+    helix_val **args;
     helix_val *return_val;
     int has_returned;
 } stack_frame;
@@ -76,6 +78,8 @@ void stack_push(stack_frame *);
 void stack_pop(void);
 void stack_init(void);
 void stack_destroy(void);
+
+void push_fn_arg(stack_frame *, helix_val *);
 
 helix_hash_table *hash_table_init(void);
 helix_hash_table_fn *hash_table_init_fn(void);

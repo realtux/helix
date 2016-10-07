@@ -9,6 +9,7 @@ INCLUDES=-I. -I./src
 LIB_OBJS =
 LIB_OBJS += build/objs/constructs.o
 LIB_OBJS += build/objs/core.o
+LIB_OBJS += build/objs/debugging.o
 LIB_OBJS += build/objs/error.o
 LIB_OBJS += build/objs/functions.o
 LIB_OBJS += build/objs/helix.o

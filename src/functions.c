@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "core.h"
+#include "error.h"
 #include "lexer.h"
 
 extern int line;
@@ -36,16 +37,66 @@ void handle_fn_call(const char *function_name) {
     free(one);
     free(two);
 
+    int function_len = strlen(function_name);
+
     // add a new stack frame
     stack_frame *frame = malloc(sizeof(stack_frame));
-	frame->char_pos = chr + strlen(function_name) + 2; // fix
-
+	frame->char_pos = chr; // fix
 	frame->line_pos = line;
-	frame->name = malloc(sizeof(char) * (strlen(function_name) + 1));
+	frame->name = malloc(sizeof(char) * (function_len + 1));
 	strcpy(frame->name, function_name);
 	frame->local_vars = hash_table_init();
 	frame->local_fns = hash_table_init_fn();
     frame->has_returned = 0;
+
+    // push to the opening paren
+    chr += function_len;
+
+    // and past it
+    ++chr;
+
+    // closure arg type
+    if (source[chr] == '|') {
+        // replace this with closure argument handling
+        while (source[chr] != '|') ++chr;
+
+        // eat space from end args to double arrow
+        eat_space();
+
+        if (source[chr] != '=' && source[chr + 1] != '>') {
+            HELIX_PARSE("Expecting => after closure args");
+        }
+
+        // push past double arrow
+        chr += 2;
+
+        // eat space from double arrow to function open
+        eat_space();
+
+        int fn_s;
+
+        fn_s = chr + 1;
+
+        eat_braced_block();
+
+        helix_val *arg = init_helix_val();
+        arg->type = HELIX_VAL_FUNCTION;
+        arg->d.val_fn_s = fn_s;
+
+        push_fn_arg(frame, arg);
+    }
+
+    // eat space between last arg and end paren
+    eat_space();
+
+    // push past paren
+    ++chr;
+
+    // eat space between paren and opening brace
+    eat_space();
+
+    // push past brace
+    ++chr;
 
     stack_push(frame);
 

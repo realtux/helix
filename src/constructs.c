@@ -406,6 +406,40 @@ helix_val *evaluate_expression(void) {
 		free(variable_name);
 	}
 
+	// closure arg type
+	if (source[chr] == '|') {
+		// push past start pipe
+		++chr;
+
+		// replace this with closure argument handling
+		while (source[chr] != '|') ++chr;
+
+		// push past end pipe
+		++chr;
+
+		// eat space from end args to double arrow
+        eat_space();
+
+        if (source[chr] != '=' && source[chr + 1] != '>') {
+            HELIX_PARSE("Expecting => after closure args");
+        }
+
+        // push past double arrow
+        chr += 2;
+
+        // eat space from double arrow to function open
+        eat_space();
+
+		int fn_s;
+
+		fn_s = chr;
+
+		eat_braced_block();
+
+		lh_value->type = HELIX_VAL_FUNCTION;
+		lh_value->d.val_fn_s = fn_s;
+	}
+
 	// concatenation?
 	eat_space();
 	if (source[chr] == '.') {

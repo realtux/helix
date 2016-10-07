@@ -25,6 +25,7 @@ void stack_init(void) {
 	strcpy(frame->name, "main");
 	frame->local_vars = hash_table_init();
 	frame->local_fns = hash_table_init_fn();
+	frame->arg_count = 0;
 	frame->has_returned = 0;
 
 	stack[0] = frame;
@@ -56,6 +57,18 @@ void stack_destroy(void) {
 	if (stack == NULL) return;
 
 	free(stack);
+}
+
+void push_fn_arg(stack_frame *frame, helix_val *arg) {
+	if (frame->arg_count == 0) {
+		frame->args = malloc(sizeof(helix_val *));
+	} else {
+		frame->args = realloc(frame->args, sizeof(helix_val *) * frame->arg_count + 1);
+	}
+
+	frame->args[frame->arg_count] = arg;
+
+	++frame->arg_count;
 }
 
 helix_hash_table *hash_table_init(void) {
