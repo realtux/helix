@@ -63,7 +63,7 @@ void push_fn_arg(stack_frame *frame, helix_val *arg) {
 	if (frame->arg_count == 0) {
 		frame->args = malloc(sizeof(helix_val *));
 	} else {
-		frame->args = realloc(frame->args, sizeof(helix_val *) * frame->arg_count + 1);
+		frame->args = realloc(frame->args, sizeof(helix_val *) * (frame->arg_count + 1));
 	}
 
 	frame->args[frame->arg_count] = arg;
@@ -108,6 +108,24 @@ void hash_table_add(char *key, helix_val *val) {
 
 	stack[s]->local_vars->keys[key_count] = key;
 	stack[s]->local_vars->vals[key_count] = val;
+}
+
+void hash_table_add_by_table(stack_frame *frame, char *key, helix_val *val) {
+	int key_count = frame->local_vars->key_count;
+
+	++frame->local_vars->key_count;
+
+	// initial element check
+	if (key_count == 0) {
+		frame->local_vars->keys = malloc(sizeof(char *) * 1);
+		frame->local_vars->vals = malloc(sizeof(helix_val *) * 1);
+	} else {
+		EXPAND_ARRAY_TO(frame->local_vars->keys, char *, key_count + 1);
+		EXPAND_ARRAY_TO(frame->local_vars->vals, helix_val *, key_count + 1);
+	}
+
+	frame->local_vars->keys[key_count] = key;
+	frame->local_vars->vals[key_count] = val;
 }
 
 void hash_table_add_fn(char *key, char *val) {

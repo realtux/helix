@@ -118,8 +118,10 @@ void con_fn_def(void) {
 		eat_space();
 
 		if (source[chr] == '(') {
-			// optionally handle arguments
-			++chr;++chr;
+			// push past arguments
+			++chr;
+			while (source[chr] != ')') ++chr;
+			++chr;
 		}
 
 		// eat space between args and lcurly
@@ -340,10 +342,10 @@ helix_val *evaluate_expression(void) {
 		strncpy(std, matches[1], match_len);
 		std[match_len] = '\0';
 
+		free_pcre_matches(matches, num_matches);
 		handle_std(std);
 
 		free(std);
-		free_pcre_matches(matches, num_matches);
 	}
 
 	// user function call

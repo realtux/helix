@@ -4,6 +4,7 @@
 #include <time.h>
 
 #include "core.h"
+#include "debugging.h"
 
 extern int line;
 extern int chr;
@@ -54,6 +55,8 @@ void stack_trace(void) {
 	} else {
 		fprintf(log, "%s:   -> err:%d\n", stamp, line);
 	}
+
+	//dump_full_stack();
 
 	fclose(log);
 	free(stamp);

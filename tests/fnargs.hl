@@ -1,0 +1,15 @@
+fn b(a, d, b, h, j, k) {
+    c='ccc'
+
+    fn what() {
+
+    }
+
+    return a .d. b
+}
+
+fn a(x) {
+    return b('cool', x, 'man', 'doesnt matter')
+}
+
+output::print(a('yes'))

@@ -1,17 +1,5 @@
-fn g() {
-    return 'asd'
-}
-
-fn f() {
-    return g()
-}
-
-fn e() {
-    return f()
-}
-
 fn d() {
-    return e()
+    return 'asd'
 }
 
 fn c() {

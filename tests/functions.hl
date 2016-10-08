@@ -6,6 +6,7 @@ fn func_b() {
 fn mid() {
     output::print('something\n')
 }
+
 fn func_a() {
     mid()
     return func_b() . 'e'

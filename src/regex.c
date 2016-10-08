@@ -52,6 +52,8 @@ char **pcre_match(const char *regex, const char *str, int *num_matches) {
 }
 
 void free_pcre_matches(char **matches, int num_matches) {
+    if (matches == NULL || num_matches == 0) return;
+
     for (int i = 0; i < num_matches; ++i) {
         free(matches[i]);
     }

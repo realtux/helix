@@ -1,0 +1,7 @@
+fn exec_me(fn) {
+    fn('yes')
+}
+
+exec_me(|name| => {
+    output::print(name)
+})

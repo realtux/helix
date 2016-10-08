@@ -80,6 +80,7 @@ void stack_init(void);
 void stack_destroy(void);
 
 void push_fn_arg(stack_frame *, helix_val *);
+void hash_table_add_by_table(stack_frame *, char *, helix_val *);
 
 helix_hash_table *hash_table_init(void);
 helix_hash_table_fn *hash_table_init_fn(void);

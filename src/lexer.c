@@ -164,6 +164,8 @@ void lex(void) {
 			continue;
 		}
 
+		if (source[chr] == '\0') break;
+
 		if (chr < source_size-1) {
 			HELIX_PARSE("Syntax error");
 		} else {
