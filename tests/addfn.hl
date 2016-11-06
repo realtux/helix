@@ -3,3 +3,11 @@ fn add(a,b,c) {
 }
 
 output::print(add(2,1,500))
+
+
+a = 1
+
+while a != 100 {
+    output::print('looping\n')
+    a = a + 1
+}

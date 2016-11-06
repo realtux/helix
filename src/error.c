@@ -38,7 +38,7 @@ void stack_trace(void) {
 
 	if (log == NULL) return;
 
-	char *stamp = get_timestamp();
+	char *stamp = "0";//get_timestamp();
 
 	fprintf(log, "%s: Stack Trace:\n", stamp);
 
@@ -59,7 +59,7 @@ void stack_trace(void) {
 	//dump_full_stack();
 
 	fclose(log);
-	free(stamp);
+	//free(stamp);
 }
 
 void helix_log_error(const char *type, const char *msg, int line,
@@ -67,7 +67,7 @@ void helix_log_error(const char *type, const char *msg, int line,
 
     FILE *log = fopen("/var/log/helix.log", "a");
 
-	char *stamp = get_timestamp();
+	char *stamp = "0";//get_timestamp();
 
     if (log == NULL) {
 		//free(stamp);
@@ -77,7 +77,7 @@ void helix_log_error(const char *type, const char *msg, int line,
     fprintf(log, "%s: Helix %s: %s at line %d in %s\n", stamp, type, msg, line, file);
 
 	fclose(log);
-	free(stamp);
+	//free(stamp);
 
 	if (dump_stack) stack_trace();
 

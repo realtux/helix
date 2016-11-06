@@ -263,6 +263,7 @@ void handle_construct(const char *construct) {
 }
 
 helix_val *evaluate_expression(void) {
+	int handled = 0;
 	int num_matches = 0;
 	int match_len;
 	char **matches;
@@ -282,6 +283,7 @@ helix_val *evaluate_expression(void) {
 
 	// handle string
 	if (source[chr] == '\'') {
+		handled = 1;
 		helix_val_set_type(lh_value, HELIX_VAL_STRING);
 
 		++chr;
@@ -320,6 +322,7 @@ helix_val *evaluate_expression(void) {
 	// handle integer
 	matches = pcre_match(LEXER_RE_INTEGERS, source + chr, &num_matches);
 	if (num_matches > 0) {
+		handled = 1;
 		helix_val_set_type(lh_value, HELIX_VAL_INT);
 
 		long long integer = atoi(matches[1]);
@@ -333,6 +336,7 @@ helix_val *evaluate_expression(void) {
 	// std call
     matches = pcre_match(LEXER_RE_STD, source + chr, &num_matches);
 	if (num_matches > 0) {
+		handled = 1;
 		match_len = strlen(matches[1]);
 
 		// get the std name
@@ -351,6 +355,7 @@ helix_val *evaluate_expression(void) {
 	// user function call
 	matches = pcre_match(LEXER_RE_FN, source + chr, &num_matches);
 	if (num_matches > 0) {
+		handled = 1;
 		match_len = strlen(matches[1]);
 
 		// get the fn name
@@ -372,6 +377,7 @@ helix_val *evaluate_expression(void) {
 	// variable
 	matches = pcre_match(LEXER_RE_VARIABLES, source + chr, &num_matches);
 	if (num_matches > 0) {
+		handled = 1;
 		match_len = strlen(matches[1]);
 
 		// get the variable name
@@ -410,6 +416,7 @@ helix_val *evaluate_expression(void) {
 
 	// closure arg type
 	if (source[chr] == '|') {
+		handled = 1;
 		// push past start pipe
 		++chr;
 
@@ -445,6 +452,7 @@ helix_val *evaluate_expression(void) {
 	// concatenation?
 	eat_space();
 	if (source[chr] == '.') {
+		handled = 1;
 		++chr;
 
 		// get whatever comes next
@@ -464,6 +472,7 @@ helix_val *evaluate_expression(void) {
 	// addition
 	eat_space();
 	if (source[chr] == '+') {
+		handled = 1;
 		++chr;
 
 		// get whatever comes next
@@ -480,6 +489,7 @@ helix_val *evaluate_expression(void) {
 	// subtraction
 	eat_space();
 	if (source[chr] == '-') {
+		handled = 1;
 		++chr;
 
 		// get whatever comes next
@@ -496,6 +506,7 @@ helix_val *evaluate_expression(void) {
 	// multiplication
 	eat_space();
 	if (source[chr] == '*') {
+		handled = 1;
 		++chr;
 
 		// get whatever comes next
@@ -512,6 +523,7 @@ helix_val *evaluate_expression(void) {
 	// division
 	eat_space();
 	if (source[chr] == '/') {
+		handled = 1;
 		++chr;
 
 		// get whatever comes next
@@ -544,6 +556,7 @@ helix_val *evaluate_expression(void) {
 	}
 
 	if (operator != 0) {
+		handled = 1;
 		int result;
 
 		// a comparison means the result is automatically a bool
@@ -588,6 +601,10 @@ helix_val *evaluate_expression(void) {
 
 		helix_val_set_type(lh_value, HELIX_VAL_BOOL);
 		lh_value->d.val_bool = result;
+	}
+
+	if (!handled) {
+		HELIX_PARSE("Syntax error");
 	}
 
 	return lh_value;
