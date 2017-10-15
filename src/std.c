@@ -16,33 +16,33 @@ extern int chr;
 extern char *source;
 
 void handle_std(const char *namespace) {
-	// eat up the namespace and method name
-	while (source[chr] != '(') ++chr;
+    // eat up the namespace and method name
+    while (source[chr] != '(') ++chr;
 
-	// and the lparen
-	++chr;
+    // and the lparen
+    ++chr;
 
-	if (strcmp(namespace, "output::print") == 0) {
-		output_print(evaluate_expression());
-	} else if (strcmp(namespace, "thread::new") == 0) {
-		thread_new(evaluate_expression());
-	} else if (strcmp(namespace, "thread::wait_all") == 0) {
-		thread_wait_all();
-	} else {
-		char *suffix = " is not a function";
-		char *message = malloc(sizeof(char) * (strlen(namespace) + strlen(suffix) + 1));
+    if (strcmp(namespace, "output::print") == 0) {
+        output_print(evaluate_expression());
+    } else if (strcmp(namespace, "thread::new") == 0) {
+        thread_new(evaluate_expression());
+    } else if (strcmp(namespace, "thread::wait_all") == 0) {
+        thread_wait_all();
+    } else {
+        char *suffix = " is not a function";
+        char *message = malloc(sizeof(char) * (strlen(namespace) + strlen(suffix) + 1));
 
-		strcpy(message, namespace);
-		strcat(message, suffix);
+        strcpy(message, namespace);
+        strcat(message, suffix);
 
-		HELIX_WARNING(message);
+        HELIX_WARNING(message);
 
-		free(message);
-	}
+        free(message);
+    }
 
-	eat_space();
+    eat_space();
 
-	// rparen
-	++chr;
+    // rparen
+    ++chr;
 
 }

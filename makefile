@@ -1,8 +1,8 @@
 CC=gcc
 CFLAGS=-std=c99 \
-	-Wall -Wextra -Wundef -Wfloat-equal -Wpointer-arith -Wcast-align \
+	-O3 -Wall -Wextra -Wundef -Wfloat-equal -Wpointer-arith -Wcast-align \
 	-Wstrict-prototypes -Wno-missing-field-initializers -Warray-bounds \
-	-pedantic -fstrict-aliasing -fno-stack-protector -g
+	-pedantic -fstrict-aliasing -g
 LINKS=-lpcre -lpthread
 INCLUDES=-I. -I./src
 

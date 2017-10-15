@@ -1,0 +1,13 @@
+a = 1
+
+while a != 10 {
+    output::print('im looping\n')
+    output::print(a)
+    a = a + 1
+}
+
+b = true
+
+if b {
+    output::print('yes, b')
+}

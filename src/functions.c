@@ -43,10 +43,10 @@ void handle_fn_call(const char *function_name) {
 
     // add a new stack frame
     stack_frame *frame = malloc(sizeof(stack_frame));
-	frame->name = malloc(sizeof(char) * (function_len + 1));
-	strcpy(frame->name, function_name);
-	frame->local_vars = hash_table_init();
-	frame->local_fns = hash_table_init_fn();
+    frame->name = malloc(sizeof(char) * (function_len + 1));
+    strcpy(frame->name, function_name);
+    frame->local_vars = hash_table_init();
+    frame->local_fns = hash_table_init_fn();
     frame->arg_count = 0;
     frame->has_returned = 0;
 
@@ -119,7 +119,7 @@ void handle_fn_call(const char *function_name) {
 
     // store the line and chr of the place to return to after stack pop
     frame->char_pos = chr;
-	frame->line_pos = line;
+    frame->line_pos = line;
 
     // position cursor
     line = fn_line;
